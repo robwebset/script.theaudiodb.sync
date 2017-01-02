@@ -16,7 +16,7 @@ from resources.lib.settings import log
 from resources.lib.settings import Settings
 
 
-ADDON = xbmcaddon.Addon(id='script.theaudiodb')
+ADDON = xbmcaddon.Addon(id='script.theaudiodb.sync')
 
 
 # Class to handle talking to theaudiodb.com
@@ -72,7 +72,21 @@ class TheAudioDb():
 # Main of TheAudioDB Script
 ##################################
 if __name__ == '__main__':
-    log("TheAudioDB Starting %s" % ADDON.getAddonInfo('version'))
+    log("TheAudioDBSync Starting %s" % ADDON.getAddonInfo('version'))
+
+    # Each version of Kodi stores the ratings slightly differently so before
+    # we do anything find out which version is running
+    kodiVer = xbmc.getInfoLabel('system.buildversion')
+    majorVersion = 17
+    minorVersion = 0
+    try:
+        majorVersion = int(kodiVer.split(".", 1)[0])
+    except:
+        log("Failed to get major version, using %d", majorVersion)
+    try:
+        minorVersion = int(kodiVer.split(".", 2)[1])
+    except:
+        log("Failed to get minor version, using %d", minorVersion)
 
     # TODO: Get the version of Kodi and decide if the Kodi rating is 1-5 or 1-10
     # Looks like Jarvis (v16.0) and earlier are 1-5, otherwise 1-10
@@ -119,4 +133,4 @@ if __name__ == '__main__':
                         json_query = xbmc.executeJSONRPC(setJson)
                         json_response = json.loads(json_query)
 
-    log("TheAudioDB Finished")
+    log("TheAudioDBSync Finished")
