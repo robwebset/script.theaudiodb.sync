@@ -2,7 +2,7 @@
 import xbmc
 import xbmcaddon
 
-ADDON = xbmcaddon.Addon(id='script.theaudiodb')
+ADDON = xbmcaddon.Addon(id='script.theaudiodb.sync')
 ADDON_ID = ADDON.getAddonInfo('id')
 
 
