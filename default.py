@@ -68,6 +68,32 @@ class TheAudioDb():
         return resp_details
 
 
+# Class to handle calls to the Kodi Music Library
+class MusicLibrary():
+    def __init__(self, kodiMajorVersion):
+        self.ratingName = 'rating'
+        if kodiMajorVersion == 17:
+            self.ratingName = 'userrating'
+
+    # Get details about every track in the Kodi Music Library
+    def getLibraryTracks(self):
+        json_query = xbmc.executeJSONRPC('{"jsonrpc": "2.0", "method": "AudioLibrary.GetSongs", "params": {"properties": ["musicbrainztrackid", "%s"]  }, "id": "libSongs"}' % self.ratingName)
+        json_response = json.loads(json_query)
+
+        libraryTracks = []
+        if ("result" in json_response) and ('songs' in json_response['result']):
+            libraryTracks = json_response['result']['songs']
+
+        log("MusicLibrary: Retrieved a total of %d tracks" % len(libraryTracks))
+
+        return libraryTracks
+
+    # Set the rating for a given track
+    def setLibraryTrackRating(self, songid, rating):
+        setJson = '{"jsonrpc": "2.0", "method": "AudioLibrary.SetSongDetails", "params": { "songid": %s, "%s": %d  }, "id": "libSongs"}' % (songid, self.ratingName, rating)
+        xbmc.executeJSONRPC(setJson)
+
+
 ##################################
 # Main of TheAudioDB Script
 ##################################
@@ -82,16 +108,19 @@ if __name__ == '__main__':
     try:
         majorVersion = int(kodiVer.split(".", 1)[0])
     except:
-        log("Failed to get major version, using %d", majorVersion)
+        log("Failed to get major version, using %d" % majorVersion)
     try:
-        minorVersion = int(kodiVer.split(".", 2)[1])
+        minorSplit = kodiVer.split(".", 2)[1]
+        # Non GA versions there are bits after a minus
+        minorVersion = int(minorSplit.split("-", 1)[0])
     except:
-        log("Failed to get minor version, using %d", minorVersion)
+        log("Failed to get minor version, using %d" % minorVersion)
 
-    # TODO: Get the version of Kodi and decide if the Kodi rating is 1-5 or 1-10
     # Looks like Jarvis (v16.0) and earlier are 1-5, otherwise 1-10
-    # Check if later Jarvis versions (v16.1) uses 5 or 10 as the max
     ratingDivisor = 1
+    if (majorVersion < 16) or ((majorVersion < 17) and (minorVersion < 1)):
+        log("Detected version earlier than 16.1, using rating range 1-5")
+        ratingDivisor = 2
 
     # Get the username
     username = Settings.getUsername()
@@ -107,30 +136,38 @@ if __name__ == '__main__':
         # For each rating, check to see if the track appears in the library
         # TODO: At the moment it only works if the library is scanned with musicbrainztrackid
         #       it should also have the option to search via the artist name and track title
-        # TODO: Add busy dialog
+        # TODO: Add busy dialog / Progress bar
         # TODO: Allow running as service
         # TODO: Add option to record when the last update was performed and only do newer changes
+        # TODO: For v17 allow the rating to be read from theaudioDB (in addition to the userrating)
+        #       http://www.theaudiodb.com/api/v1/json/1/track-mb.php?i=e4c0494d-5ab6-479a-a527-cfdc41f7c595
 
         # Unfortunately we can not filter based on the musicbrainztrackid as that is not a valid filter support
         # this means we just have to get all tracks!!!
         # TODO: Is there a better way of doing this
 
-        # TODO: Also get the current rating and only do the update if it is different
-        json_query = xbmc.executeJSONRPC('{"jsonrpc": "2.0", "method": "AudioLibrary.GetSongs", "params": {"properties": ["musicbrainztrackid"]  }, "id": "libSongs"}')
-        json_response = json.loads(json_query)
+        musicLib = MusicLibrary(majorVersion)
+        libraryTracks = musicLib.getLibraryTracks()
 
-        if ("result" in json_response) and ('songs' in json_response['result']):
-            libraryTracks = json_response['result']['songs']
-            for libTrack in libraryTracks:
-                if 'musicbrainztrackid' in libTrack:
-                    musicbrainztrackid = libTrack['musicbrainztrackid']
-                    if musicbrainztrackid in ratings:
-                        songid = libTrack['songid']
-                        log("Found matching music brainz track id %s (%s)" % (musicbrainztrackid, songid))
-                        log("Setting rating to %d" % ratings[musicbrainztrackid])
-                        # Now update rating for this track
-                        setJson = '{"jsonrpc": "2.0", "method": "AudioLibrary.SetSongDetails", "params": { "songid": %s, "rating": %d  }, "id": "libSongs"}' % (songid, int(ratings[musicbrainztrackid] / ratingDivisor))
-                        json_query = xbmc.executeJSONRPC(setJson)
-                        json_response = json.loads(json_query)
+        for libTrack in libraryTracks:
+            if 'musicbrainztrackid' in libTrack:
+                musicbrainztrackid = libTrack['musicbrainztrackid']
+                if musicbrainztrackid in ratings:
+                    songid = libTrack['songid']
+                    log("Found matching music brainz track id %s (%s)" % (musicbrainztrackid, songid))
+                    existingRating = 0
+                    if 'rating' in libTrack:
+                        existingRating = int(libTrack['rating'])
+                    if 'userrating' in libTrack:
+                        existingRating = int(libTrack['userrating'])
+
+                    # Check if the rating has changed
+                    if existingRating == ratings[musicbrainztrackid]:
+                        log("Ratings are currently the same (%d), skipping %s" % (existingRating, musicbrainztrackid))
+                    else:
+                        log("Setting rating to %d (was %d)" % (ratings[musicbrainztrackid], existingRating))
+                        musicLib.setLibraryTrackRating(songid, int(ratings[musicbrainztrackid] / ratingDivisor))
+
+        del musicLib
 
     log("TheAudioDBSync Finished")
