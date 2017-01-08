@@ -22,3 +22,7 @@ class Settings():
     @staticmethod
     def getUsername():
         return ADDON.getSetting("username")
+
+    @staticmethod
+    def isUseArtistDetails():
+        return ADDON.getSetting("useArtistDetails") == "true"

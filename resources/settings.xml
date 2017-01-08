@@ -2,6 +2,7 @@
 <settings>
 	<category label="32001">
 		<setting id="username" type="text" label="32004" default=""/>
+		<setting id="useArtistDetails" type="bool" label="32006" default="false"/>
     	<setting label="32002" type="lsep"/>
 		<setting id="logEnabled" type="bool" label="32003" default="false"/>
 	</category>
