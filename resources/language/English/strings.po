@@ -1,6 +1,6 @@
 # Kodi Media Center language file
-# Addon Name: TheAudioDB
-# Addon id: script.theaudiodb
+# Addon Name: TheAudioDBSync
+# Addon id: script.theaudiodb.sync
 # Addon Provider: robwebset
 msgid ""
 msgstr ""
@@ -25,7 +25,7 @@ msgid "Supplies various options to synchronise artist data between theaudiodb.co
 msgstr ""
 
 msgctxt "#32001"
-msgid "TheAudioDB"
+msgid "TheAudioDBSync"
 msgstr ""
 
 msgctxt "#32002"
@@ -42,4 +42,20 @@ msgstr ""
 
 msgctxt "#32005"
 msgid "Username Not Set"
+msgstr ""
+
+msgctxt "#32006"
+msgid "Use Artist Details If No Music Brainz Id"
+msgstr ""
+
+msgctxt "#32007"
+msgid "Loading Tracks From Library"
+msgstr ""
+
+msgctxt "#32008"
+msgid "Track In Library To Process"
+msgstr ""
+
+msgctxt "#32009"
+msgid "Last Track Updated"
 msgstr ""

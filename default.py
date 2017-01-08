@@ -21,32 +21,87 @@ ADDON = xbmcaddon.Addon(id='script.theaudiodb.sync')
 
 # Class to handle talking to theaudiodb.com
 class TheAudioDb():
-    def __init__(self):
+    def __init__(self, defaultUsername):
         self.url_prefix = 'http://www.theaudiodb.com/api/v1/json/1/'
+        self.cachedTrackRatings = None
+        self.username = defaultUsername
 
-    def getTrackRatings(self, username):
-        # Create the URL to use to get the track ratings
-        ratingsUrl = "%sratings-track.php?user=%s" % (self.url_prefix, username)
+    # Get all the user ratings for tracks
+    def getTrackRatings(self):
+        # When we have made the call to get the ratings, we will cache it in
+        # memory for future use to save returning to the server each time
+        if self.cachedTrackRatings is None:
+            # Create the URL to use to get the track ratings
+            ratingsUrl = "%sratings-track.php?user=%s" % (self.url_prefix, self.username)
 
-        # Make the call to theaudiodb.com
-        json_details = self._makeCall(ratingsUrl)
+            # Make the call to theaudiodb.com
+            json_details = self._makeCall(ratingsUrl)
 
-        trackRatings = {}
-        if json_details not in [None, ""]:
-            json_response = json.loads(json_details)
+            if json_details not in [None, ""]:
+                json_response = json.loads(json_details)
 
-            # The results of the search come back as an array of entries
-            if 'scores' in json_response:
-                for tracks in json_response['scores']:
-                    mbidTrack = tracks.get('mbidTrack', None)
-                    if mbidTrack not in [None, ""]:
-                        mbidTrack = str(mbidTrack)
+                # The results of the search come back as an array of entries
+                if 'scores' in json_response:
+                    self.cachedTrackRatings = []
+                    for tracks in json_response['scores']:
+                        details = {'mbidTrack': None, 'trackscore': None, 'artist': None, 'track': None, 'tracktotal': None}
+                        details['mbidTrack'] = tracks.get('mbidTrack', None)
+                        details['artist'] = tracks.get('strArtist', None)
+                        details['track'] = tracks.get('strTrack', None)
+
                         ratingStr = tracks.get('trackscore', None)
-                        if mbidTrack not in [None, ""]:
-                            log("TrackRatings: Found Id %s with rating %s" % (mbidTrack, str(ratingStr)))
-                            trackRatings[mbidTrack] = int(ratingStr)
+                        if ratingStr not in [None, ""]:
+                            details['trackscore'] = int(ratingStr)
 
-        return trackRatings
+                        totalStr = tracks.get('tracktotal', None)
+                        if totalStr not in [None, ""]:
+                            # Total score is a float - so add on 0.5 to ensure the rounding
+                            # to an integer is as expected
+                            details['tracktotal'] = int(float(totalStr) + 0.5)
+
+                        if (totalStr not in [None, ""]) or (ratingStr not in [None, ""]):
+                            # Only add to the list if there is a rating
+                            self.cachedTrackRatings.append(details)
+
+        return self.cachedTrackRatings
+
+    # Given a track from the library will get the rating in theaudiodb.com
+    def getRatingForTrack(self, libraryTrack):
+        # Get the ratings from theaudiodb
+        ratingDetails = self.getTrackRatings()
+
+        # Now look at the library track and see if a match is found
+        # first try and match the musicbrainzid
+        rating = None
+        totalRating = None
+        musicbrainztrackid = None
+        if 'musicbrainztrackid' in libTrack:
+            musicbrainztrackid = libTrack['musicbrainztrackid']
+
+        if musicbrainztrackid not in [None, ""]:
+            # Now check to see if this Id is in our list
+            for details in ratingDetails:
+                if details['mbidTrack'] == musicbrainztrackid:
+                    rating = details['trackscore']
+                    totalRating = details['tracktotal']
+                    log("Found matching music brainz track id %s (rating: %d)" % (musicbrainztrackid, rating))
+        elif Settings.isUseArtistDetails():
+            # Check if the rating was not found and we should check for
+            # the artist details in order to get a match
+            if ('artist' in libraryTrack) and ('title' in libraryTrack):
+                if (libraryTrack['artist'] not in [None, ""]) and (libraryTrack['title'] not in [None, ""]):
+                    artistName = libraryTrack['artist']
+                    # Artist is actually an array of artists
+                    if len(libraryTrack['artist']) > 0:
+                        artistName = " ".join(libraryTrack['artist'])
+
+                    for details in ratingDetails:
+                        if (details['artist'] == artistName) and (details['track'] == libraryTrack['title']):
+                            rating = details['trackscore']
+                            totalRating = details['tracktotal']
+                            log("Found matching track %s (rating: %d)" % (details['track'], rating))
+
+        return rating, totalRating
 
     # Perform the API call
     def _makeCall(self, url):
@@ -70,14 +125,21 @@ class TheAudioDb():
 
 # Class to handle calls to the Kodi Music Library
 class MusicLibrary():
-    def __init__(self, kodiMajorVersion):
+    def __init__(self, kodiMajorVersion, ratingDivisor):
+        self.kodiMajorVersion = kodiMajorVersion
+        self.ratingDivisor = ratingDivisor
+        self.additionalTrackValues = ''
         self.ratingName = 'rating'
-        if kodiMajorVersion == 17:
+        if kodiMajorVersion >= 17:
+            self.additionalTrackValues = ', "userrating"'
             self.ratingName = 'userrating'
+        # Check if we may want to use the Artist Details as well
+        if Settings.isUseArtistDetails():
+            self.additionalTrackValues = '%s, "title", "artist"' % self.additionalTrackValues
 
     # Get details about every track in the Kodi Music Library
     def getLibraryTracks(self):
-        json_query = xbmc.executeJSONRPC('{"jsonrpc": "2.0", "method": "AudioLibrary.GetSongs", "params": {"properties": ["musicbrainztrackid", "%s"]  }, "id": "libSongs"}' % self.ratingName)
+        json_query = xbmc.executeJSONRPC('{"jsonrpc": "2.0", "method": "AudioLibrary.GetSongs", "params": {"properties": ["musicbrainztrackid", "rating"%s]  }, "id": "libSongs"}' % self.additionalTrackValues)
         json_response = json.loads(json_query)
 
         libraryTracks = []
@@ -85,13 +147,49 @@ class MusicLibrary():
             libraryTracks = json_response['result']['songs']
 
         log("MusicLibrary: Retrieved a total of %d tracks" % len(libraryTracks))
-
         return libraryTracks
 
-    # Set the rating for a given track
-    def setLibraryTrackRating(self, songid, rating):
-        setJson = '{"jsonrpc": "2.0", "method": "AudioLibrary.SetSongDetails", "params": { "songid": %s, "%s": %d  }, "id": "libSongs"}' % (songid, self.ratingName, rating)
-        xbmc.executeJSONRPC(setJson)
+    # Update the rating for a given track
+    def updateLibraryTrackRatings(self, libTrack, rating, totalRating):
+        # Make sure the song Id is set, otherwise we have nothing to update
+        if (libTrack in [None, ""]) or ('songid' not in libTrack) or (libTrack['songid'] in [None, ""]):
+            return
+
+        songid = libTrack['songid']
+
+        valuesToSet = ""
+        existingRating = 0
+        if 'rating' in libTrack:
+            existingRating = int(libTrack['rating'])
+
+        if self.kodiMajorVersion >= 17:
+            # Check if the main rating needs to be updated
+            if (totalRating not in [None, "", 0]) and (totalRating != existingRating):
+                valuesToSet = ', "rating": %d' % totalRating
+            # Check if the user rating needs updating
+            existingUserRating = 0
+            if 'userrating' in libTrack:
+                existingUserRating = int(libTrack['userrating'])
+            if (rating not in [None, "", 0]) and (rating != existingUserRating):
+                valuesToSet = '%s, "userrating": %d' % (valuesToSet, rating)
+        else:
+            # For older kodi versions we update the rating with the user rating
+            if rating not in [None, "", 0]:
+                correctedRating = int(rating / self.ratingDivisor)
+                if correctedRating != existingRating:
+                    valuesToSet = ', "rating": %d' % correctedRating
+
+        trackUpdated = False
+        # Check if we have any values to update
+        if valuesToSet in [None, ""]:
+            log("updateLibraryTrackRatings: no ratings to update, songid:%s, rating:%s, totalRating:%s" % (songid, str(rating), str(totalRating)))
+        else:
+            log("updateLibraryTrackRatings: updating songid %s with%s" % (songid, valuesToSet))
+            setJson = '{"jsonrpc": "2.0", "method": "AudioLibrary.SetSongDetails", "params": { "songid": %s%s }, "id": "libSongs"}' % (songid, valuesToSet)
+            xbmc.executeJSONRPC(setJson)
+            trackUpdated = True
+
+        return trackUpdated
 
 
 ##################################
@@ -129,45 +227,49 @@ if __name__ == '__main__':
         # Show a dialog detailing that the username is not set
         xbmcgui.Dialog().ok(ADDON.getLocalizedString(32001), ADDON.getLocalizedString(32005))
     else:
-        theAudioDb = TheAudioDb()
-        ratings = theAudioDb.getTrackRatings(username)
-        del theAudioDb
+        theAudioDb = TheAudioDb(username)
+        musicLib = MusicLibrary(majorVersion, ratingDivisor)
 
-        # For each rating, check to see if the track appears in the library
-        # TODO: At the moment it only works if the library is scanned with musicbrainztrackid
-        #       it should also have the option to search via the artist name and track title
-        # TODO: Add busy dialog / Progress bar
-        # TODO: Allow running as service
-        # TODO: Add option to record when the last update was performed and only do newer changes
-        # TODO: For v17 allow the rating to be read from theaudioDB (in addition to the userrating)
-        #       http://www.theaudiodb.com/api/v1/json/1/track-mb.php?i=e4c0494d-5ab6-479a-a527-cfdc41f7c595
+        # Counters for the amount of data updated
+        numTracksUpdated = 0
 
-        # Unfortunately we can not filter based on the musicbrainztrackid as that is not a valid filter support
-        # this means we just have to get all tracks!!!
-        # TODO: Is there a better way of doing this
+        progressDialog = xbmcgui.DialogProgressBG()
+        try:
+            progressDialog.create(ADDON.getLocalizedString(32001), ADDON.getLocalizedString(32007))
 
-        musicLib = MusicLibrary(majorVersion)
-        libraryTracks = musicLib.getLibraryTracks()
+            # Unfortunately we can not filter based on the musicbrainztrackid as that is not a
+            # valid filter support this means we just have to get all tracks
+            libraryTracks = musicLib.getLibraryTracks()
 
-        for libTrack in libraryTracks:
-            if 'musicbrainztrackid' in libTrack:
-                musicbrainztrackid = libTrack['musicbrainztrackid']
-                if musicbrainztrackid in ratings:
-                    songid = libTrack['songid']
-                    log("Found matching music brainz track id %s (%s)" % (musicbrainztrackid, songid))
-                    existingRating = 0
-                    if 'rating' in libTrack:
-                        existingRating = int(libTrack['rating'])
-                    if 'userrating' in libTrack:
-                        existingRating = int(libTrack['userrating'])
+            # Set the percentage that it takes to get all the tracks from the library
+            # at about 5% for now
+            currentPercent = float(5)
 
-                    # Check if the rating has changed
-                    if existingRating == ratings[musicbrainztrackid]:
-                        log("Ratings are currently the same (%d), skipping %s" % (existingRating, musicbrainztrackid))
-                    else:
-                        log("Setting rating to %d (was %d)" % (ratings[musicbrainztrackid], existingRating))
-                        musicLib.setLibraryTrackRating(songid, int(ratings[musicbrainztrackid] / ratingDivisor))
+            # Now that we have an idea of the number of tracks that there are to
+            # process we can give a better idea of the progress
+            numberOfTracks = len(libraryTracks)
+            displayMsg = "%d %s" % (numberOfTracks, ADDON.getLocalizedString(32008))
+
+            progressDialog.update(percent=int(currentPercent), message=displayMsg)
+
+            # Calculate the percentage progress that each track will be
+            perTrackPercent = float((float(numberOfTracks)) / float(95))
+
+            # For each rating, check to see if the track appears in the library
+            for libTrack in libraryTracks:
+                # get the ratings for this track
+                rating, totalRating = theAudioDb.getRatingForTrack(libTrack)
+                # Perform the library update for this track
+                trackUpdated = musicLib.updateLibraryTrackRatings(libTrack, rating, totalRating)
+                if trackUpdated:
+                    numTracksUpdated = numTracksUpdated + 1
+                currentPercent = float(currentPercent + perTrackPercent)
+                progressDialog.update(percent=int(currentPercent))
+
+        finally:
+            progressDialog.close()
 
         del musicLib
+        del theAudioDb
 
     log("TheAudioDBSync Finished")
