@@ -49,13 +49,33 @@ msgid "Use Artist Details If No Music Brainz Id"
 msgstr ""
 
 msgctxt "#32007"
-msgid "Loading Tracks From Library"
+msgid "Starting Synchronisation"
 msgstr ""
 
 msgctxt "#32008"
-msgid "Track In Library To Process"
+msgid "Tracks In Library To Process"
 msgstr ""
 
 msgctxt "#32009"
-msgid "Last Track Updated"
+msgid "Albums In Library To Process"
+msgstr ""
+
+msgctxt "#32010"
+msgid "Album(s) Updated"
+msgstr ""
+
+msgctxt "#32011"
+msgid "Track(s) Updated"
+msgstr ""
+
+msgctxt "#32012"
+msgid "Library"
+msgstr ""
+
+msgctxt "#32013"
+msgid "Update Album Ratings"
+msgstr ""
+
+msgctxt "#32014"
+msgid "Update Track Ratings"
 msgstr ""
