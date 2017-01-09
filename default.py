@@ -125,7 +125,10 @@ class TheAudioDb():
                     rating = details['trackscore']
                     totalRating = details['tracktotal']
                     log("Found matching music brainz track id %s (rating: %d)" % (musicbrainztrackid, rating))
-        elif Settings.isUseArtistDetails():
+
+        # Check if the track was found using the Id, if not see if we want to
+        # use the details instead
+        if Settings.isUseArtistDetails() and (rating is None) and (totalRating is None):
             # Check if the rating was not found and we should check for
             # the artist details in order to get a match
             if ('artist' in libraryTrack) and ('title' in libraryTrack):
@@ -136,10 +139,15 @@ class TheAudioDb():
                         artistName = " ".join(libraryTrack['artist'])
 
                     for details in ratingDetails:
-                        if (details['artist'] == artistName) and (details['track'] == libraryTrack['title']):
-                            rating = details['trackscore']
-                            totalRating = details['tracktotal']
-                            log("Found matching track %s (rating: %d)" % (details['track'], rating))
+                        # Surround in a try catch, just in case some character encoding
+                        # causes some issues
+                        try:
+                            if (details['artist'].lower() == artistName.lower()) and (details['track'].lower() == libraryTrack['title'].lower()):
+                                rating = details['trackscore']
+                                totalRating = details['tracktotal']
+                                log("Found matching track %s (rating: %d)" % (details['track'], rating))
+                        except:
+                            log("getRatingForTrack: Failed to compare by artist and track name: %s" % traceback.format_exc())
 
         return rating, totalRating
 
@@ -163,7 +171,10 @@ class TheAudioDb():
                     rating = details['albumscore']
                     totalRating = details['albumtotal']
                     log("Found matching music brainz album id %s (rating: %d)" % (musicbrainzalbumid, rating))
-        elif Settings.isUseArtistDetails():
+
+        # Check if the album was found using the Id, if not see if we want to
+        # use the details instead
+        if Settings.isUseArtistDetails() and (rating is None) and (totalRating is None):
             # Check if the rating was not found and we should check for
             # the artist details in order to get a match
             if ('artist' in libraryAlbum) and ('title' in libraryAlbum):
@@ -174,10 +185,15 @@ class TheAudioDb():
                         artistName = " ".join(libraryAlbum['artist'])
 
                     for details in ratingDetails:
-                        if (details['artist'] == artistName) and (details['album'] == libraryAlbum['title']):
-                            rating = details['albumscore']
-                            totalRating = details['albumtotal']
-                            log("Found matching album %s (rating: %d)" % (details['album'], rating))
+                        # Surround in a try catch, just in case some character encoding
+                        # causes some issues
+                        try:
+                            if (details['artist'].lower() == artistName.lower()) and (details['album'].lower() == libraryAlbum['title'].lower()):
+                                rating = details['albumscore']
+                                totalRating = details['albumtotal']
+                                log("Found matching album %s (rating: %d)" % (details['album'], rating))
+                        except:
+                            log("getRatingForAlbum: Failed to compare by artist and album name: %s" % traceback.format_exc())
 
         return rating, totalRating
 
