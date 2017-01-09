@@ -26,3 +26,11 @@ class Settings():
     @staticmethod
     def isUseArtistDetails():
         return ADDON.getSetting("useArtistDetails") == "true"
+
+    @staticmethod
+    def isUpdateAlbumRatings():
+        return ADDON.getSetting("updateAlbumRatings") == "true"
+
+    @staticmethod
+    def isUpdateTrackRatings():
+        return ADDON.getSetting("updateTrackRatings") == "true"
