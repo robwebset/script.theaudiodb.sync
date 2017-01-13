@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import sys
 import urllib2
+import base64
 import traceback
 import xbmc
 import xbmcgui
@@ -22,7 +23,7 @@ ADDON = xbmcaddon.Addon(id='script.theaudiodb.sync')
 # Class to handle talking to theaudiodb.com
 class TheAudioDb():
     def __init__(self, defaultUsername):
-        self.url_prefix = 'http://www.theaudiodb.com/api/v1/json/1/'
+        self.url_prefix = base64.b64decode('aHR0cDovL3d3dy50aGVhdWRpb2RiLmNvbS9hcGkvdjEvanNvbi82NjE5NjdkODMyMDIzMjQ3MTUzOTg0Lw==')
         self.cachedTrackRatings = None
         self.cachedAlbumRatings = None
         self.username = defaultUsername
