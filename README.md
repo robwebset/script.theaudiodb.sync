@@ -8,7 +8,7 @@ For more information you can have a look at the wiki entry:
 
 You can install this addon from: [Repository:URepo](http://www.urepo.org/)
 
-To ask questions or comment about Suitability, please use the forum at [URepo.org](http://www.urepo.org/forum/viewtopic.php?t=1772)
+To ask questions or comment about TheAudioDBSync, please use the forum at [URepo.org](http://www.urepo.org/forum/viewtopic.php?t=1772)
 
 __Donations__
 
