@@ -79,3 +79,39 @@ msgstr ""
 msgctxt "#32014"
 msgid "Update Track Ratings"
 msgstr ""
+
+msgctxt "#32015"
+msgid "Last Synchronisation:"
+msgstr ""
+
+msgctxt "#32016"
+msgid "Last Synchronisation was less than 5 minutes ago. Do you really wish to perform synchronisation again?"
+msgstr ""
+
+msgctxt "#32017"
+msgid "Schedule"
+msgstr ""
+
+msgctxt "#32018"
+msgid "Automatically Synchronise Every"
+msgstr ""
+
+msgctxt "#32019"
+msgid "Never"
+msgstr ""
+
+msgctxt "#32020"
+msgid "Weekly"
+msgstr ""
+
+msgctxt "#32021"
+msgid "Fortnightly"
+msgstr ""
+
+msgctxt "#32022"
+msgid "Monthly"
+msgstr ""
+
+msgctxt "#32023"
+msgid "Display Progress"
+msgstr ""

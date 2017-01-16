@@ -59,7 +59,37 @@ class Settings():
         return ADDON.getSetting("lastSyncTime")
 
     @staticmethod
-    def setLastSyncTime():
+    def setLastSyncTime(setDisplayTime=False):
         # Get the current EPOCH time
         epoch = str(int(time.time()))
         ADDON.setSetting("lastSyncTime", epoch)
+        # Also set the display time if required
+        if setDisplayTime:
+            ADDON.setSetting("lastSyncDisplay", time.strftime('%H:%M:%S %Y-%m-%d', time.localtime(float(epoch))))
+
+    @staticmethod
+    def getNextScheduledResyncTime():
+        index = int(ADDON.getSetting("scheduleInterval"))
+        if index == 0:
+            return None
+
+        lastResyncStr = Settings.getLastSyncTime()
+        if lastResyncStr in [None, "", "0"]:
+            log("getNextScheduledResyncTime: No sync time set, using current")
+            # Set the current time as the last resync as this will trigger in the future
+            Settings.setLastSyncTime(False)
+            return None
+
+        if index == 1:
+            # Weekly (604,800 seconds)
+            return int(lastResyncStr) + 604800
+        elif index == 2:
+            # Fortnightly (1,209,600 seconds)
+            return int(lastResyncStr) + 1209600
+        elif index == 3:
+            # Monthly (2,592,000 seconds) so 30 days
+            return int(lastResyncStr) + 2592000
+
+    @staticmethod
+    def isScheduleDisplayProgress():
+        return ADDON.getSetting("scheduleDisplayProgress") == "true"
