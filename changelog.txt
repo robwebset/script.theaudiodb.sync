@@ -1,2 +1,5 @@
+v1.0.1
+- Add option to schedule synchronisation
+
 v1.0.0
 - Initial Version
