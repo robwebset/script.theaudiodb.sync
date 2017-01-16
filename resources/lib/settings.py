@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import time
 import xbmc
 import xbmcaddon
 
@@ -20,6 +21,24 @@ def log(txt, loglevel=xbmc.LOGDEBUG):
 ##############################
 class Settings():
     @staticmethod
+    def getKodiVersion():
+        kodiVer = xbmc.getInfoLabel('system.buildversion')
+        majorVersion = 17
+        minorVersion = 0
+        try:
+            majorVersion = int(kodiVer.split(".", 1)[0])
+        except:
+            log("Failed to get major version, using %d" % majorVersion)
+        try:
+            minorSplit = kodiVer.split(".", 2)[1]
+            # Non GA versions there are bits after a minus
+            minorVersion = int(minorSplit.split("-", 1)[0])
+        except:
+            log("Failed to get minor version, using %d" % minorVersion)
+
+        return majorVersion, minorVersion
+
+    @staticmethod
     def getUsername():
         return ADDON.getSetting("username")
 
@@ -34,3 +53,13 @@ class Settings():
     @staticmethod
     def isUpdateTrackRatings():
         return ADDON.getSetting("updateTrackRatings") == "true"
+
+    @staticmethod
+    def getLastSyncTime():
+        return ADDON.getSetting("lastSyncTime")
+
+    @staticmethod
+    def setLastSyncTime():
+        # Get the current EPOCH time
+        epoch = str(int(time.time()))
+        ADDON.setSetting("lastSyncTime", epoch)
