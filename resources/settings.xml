@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <settings>
 	<category label="32001">
+		<setting id="lastSyncTime" type="text" visible="false" option="hidden" label="Last Sync Time" default="" />
 		<setting id="username" type="text" label="32004" default=""/>
 		<setting id="useArtistDetails" type="bool" label="32006" default="false"/>
     	<setting label="32002" type="lsep"/>
