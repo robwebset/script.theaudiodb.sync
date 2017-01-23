@@ -64,6 +64,9 @@ class MusicLibrary():
         if (libTrack in [None, ""]) or ('songid' not in libTrack) or (libTrack['songid'] in [None, ""]):
             return
 
+        if (rating in [None, ""]) and (totalRating in [None, ""]):
+            return
+
         songid = libTrack['songid']
 
         valuesToSet = ""
@@ -104,6 +107,9 @@ class MusicLibrary():
     def updateLibraryAlbumRatings(self, libAlbum, rating, totalRating):
         # Make sure the song Id is set, otherwise we have nothing to update
         if (libAlbum in [None, ""]) or ('albumid' not in libAlbum) or (libAlbum['albumid'] in [None, ""]):
+            return
+
+        if (rating in [None, ""]) and (totalRating in [None, ""]):
             return
 
         albumid = libAlbum['albumid']
