@@ -1,5 +1,8 @@
-v1.0.1
+v1.0.2 (2017-01-23)
+- Prevent script error if theaudiodb.com is unreachable
+
+v1.0.1 (2017-01-16)
 - Add option to schedule synchronisation
 
-v1.0.0
+v1.0.0 (2017-01-10)
 - Initial Version

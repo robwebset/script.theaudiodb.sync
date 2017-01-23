@@ -59,6 +59,10 @@ class TheAudioDb():
                             # Only add to the list if there is a rating
                             self.cachedTrackRatings.append(details)
 
+            # Check for the case where the site is unreachable
+            if self.cachedTrackRatings is None:
+                self.cachedTrackRatings = []
+
         return self.cachedTrackRatings
 
     # Get all the user ratings for tracks
@@ -97,6 +101,10 @@ class TheAudioDb():
                         if (totalStr not in [None, ""]) or (ratingStr not in [None, ""]):
                             # Only add to the list if there is a rating
                             self.cachedAlbumRatings.append(details)
+
+            # Check for the case where the site is unreachable
+            if self.cachedAlbumRatings is None:
+                self.cachedAlbumRatings = []
 
         return self.cachedAlbumRatings
 
@@ -199,6 +207,7 @@ class TheAudioDb():
         try:
             req = urllib2.Request(url)
             req.add_header('Accept', 'application/json')
+            req.add_header('User-Agent', 'Kodi Browser')
             response = urllib2.urlopen(req)
             resp_details = response.read()
             try:
