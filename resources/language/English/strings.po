@@ -135,3 +135,19 @@ msgstr ""
 msgctxt "#32028"
 msgid "Upload New Ratings On Startup"
 msgstr ""
+
+msgctxt "#32029"
+msgid "Track Synchronisation"
+msgstr ""
+
+msgctxt "#32030"
+msgid "Album(s) Ratings Uploaded"
+msgstr ""
+
+msgctxt "#32031"
+msgid "Track(s) Ratings Uploaded"
+msgstr ""
+
+msgctxt "#32032"
+msgid "Album Synchronisation"
+msgstr ""
