@@ -12,8 +12,14 @@
 		<setting id="updateAlbumRatings" type="bool" label="32013" default="true"/>
 		<setting id="updateTrackRatings" type="bool" label="32014" default="true"/>
 	</category>
+	<category label="32024">
+		<setting id="apiToken" type="text" label="32025" default=""/>
+		<setting id="uploadAlbumRatings" type="bool" label="32026" visible="!eq(-1,)" default="true"/>
+		<setting id="uploadTrackRatings" type="bool" label="32027" visible="!eq(-2,)" default="true"/>
+	</category>
 	<category label="32017">
 		<setting id="scheduleInterval" type="enum" label="32018" lvalues="32019|32020|32021|32022" default="0"/>
 		<setting id="scheduleDisplayProgress" type="bool" label="32023" visible="!eq(-1,0)" subsetting="true" default="true"/>
+		<setting id="uploadRatingsOnStartup" type="bool" label="32028" default="true"/>
 	</category>
 </settings>

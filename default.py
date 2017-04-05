@@ -25,23 +25,28 @@ if __name__ == '__main__':
         # Show a dialog detailing that the username is not set
         xbmcgui.Dialog().ok(ADDON.getLocalizedString(32001), ADDON.getLocalizedString(32005))
     else:
-        performResync = True
-        # Before performing the resync, check when the last time a resync was done, we want
-        # to try and discourage people doing too many resyncs in quick succession
-        lastResyncTimeStr = Settings.getLastSyncTime()
-        if lastResyncTimeStr not in [None, ""]:
-            currentTime = int(time.time())
-            # check if the last resync was within 5 minuted
-            if currentTime < (int(lastResyncTimeStr) + 300):
-                performResync = xbmcgui.Dialog().yesno(ADDON.getLocalizedString(32001), ADDON.getLocalizedString(32016))
+        # Make the call to upload any ratings that have changed
+        LibrarySync.checkForChangedTrackRatings(username, False)
 
-        if performResync:
-            # Perform the resync operation and display the status
-            numAlbumsUpdated, numTracksUpdated = LibrarySync.syncToLibrary(username, True)
+        # Only check for resync if it is enabled
+        if Settings.isUpdateAlbumRatings() or Settings.isUpdateTrackRatings():
+            performResync = True
+            # Before performing the resync, check when the last time a resync was done, we want
+            # to try and discourage people doing too many resyncs in quick succession
+            lastResyncTimeStr = Settings.getLastSyncTime()
+            if lastResyncTimeStr not in [None, ""]:
+                currentTime = int(time.time())
+                # check if the last resync was within 5 minutes
+                if currentTime < (int(lastResyncTimeStr) + 300):
+                    performResync = xbmcgui.Dialog().yesno(ADDON.getLocalizedString(32001), ADDON.getLocalizedString(32016))
 
-            # Display a summary of what was performed
-            summaryAlbums = "%d %s" % (numAlbumsUpdated, ADDON.getLocalizedString(32010))
-            summaryTracks = "%d %s" % (numTracksUpdated, ADDON.getLocalizedString(32011))
-            xbmcgui.Dialog().ok(ADDON.getLocalizedString(32001), summaryAlbums, summaryTracks)
+            if performResync:
+                # Perform the resync operation and display the status
+                numAlbumsUpdated, numTracksUpdated = LibrarySync.syncToLibrary(username, True)
+
+                # Display a summary of what was performed
+                summaryAlbums = "%d %s" % (numAlbumsUpdated, ADDON.getLocalizedString(32010))
+                summaryTracks = "%d %s" % (numTracksUpdated, ADDON.getLocalizedString(32011))
+                xbmcgui.Dialog().ok(ADDON.getLocalizedString(32001), summaryAlbums, summaryTracks)
 
     log("TheAudioDBSync Finished")

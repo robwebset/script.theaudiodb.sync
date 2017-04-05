@@ -43,6 +43,10 @@ class Settings():
         return ADDON.getSetting("username")
 
     @staticmethod
+    def getApiToken():
+        return ADDON.getSetting("apiToken")
+
+    @staticmethod
     def isUseArtistDetails():
         return ADDON.getSetting("useArtistDetails") == "true"
 
@@ -53,6 +57,24 @@ class Settings():
     @staticmethod
     def isUpdateTrackRatings():
         return ADDON.getSetting("updateTrackRatings") == "true"
+
+    @staticmethod
+    def isUploadAlbumRatings():
+        if Settings.getApiToken() in [None, ""]:
+            return False
+        return ADDON.getSetting("uploadAlbumRatings") == "true"
+
+    @staticmethod
+    def isUploadTrackRatings():
+        if Settings.getApiToken() in [None, ""]:
+            return False
+        return ADDON.getSetting("uploadTrackRatings") == "true"
+
+    @staticmethod
+    def isUploadRatingsOnStartup():
+        if Settings.getApiToken() in [None, ""]:
+            return False
+        return ADDON.getSetting("uploadRatingsOnStartup") == "true"
 
     @staticmethod
     def getLastSyncTime():
