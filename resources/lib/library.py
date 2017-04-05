@@ -47,7 +47,9 @@ class MusicLibrary():
                 if ('artist' not in track) or (len(track['artist']) < 1) or (len(''.join(track['artist'])) < 1):
                     if ('albumartist' in track) and (len(track['albumartist']) > 0):
                         track['artist'] = track['albumartist']
-                        del track['albumartist']
+                # We don't want the album artist left in the data
+                if ('albumartist' in track):
+                    del track['albumartist']
 
         log("MusicLibrary: Retrieved a total of %d tracks" % len(libraryTracks))
         return libraryTracks
