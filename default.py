@@ -26,7 +26,24 @@ if __name__ == '__main__':
         xbmcgui.Dialog().ok(ADDON.getLocalizedString(32001), ADDON.getLocalizedString(32005))
     else:
         # Make the call to upload any ratings that have changed
-        LibrarySync.checkForChangedTrackRatings(username, False)
+        numAlbumRatingsUploaded = -1
+        if Settings.isUploadAlbumRatings():
+            numAlbumRatingsUploaded = LibrarySync.checkForChangedAlbumRatings(username, True)
+
+        numTrackRatingsUploaded = -1
+        if Settings.isUploadTrackRatings():
+            numTrackRatingsUploaded = LibrarySync.checkForChangedTrackRatings(username, True)
+
+        if (numTrackRatingsUploaded != -1) or (numAlbumRatingsUploaded != -1):
+            if numAlbumRatingsUploaded < 0:
+                numAlbumRatingsUploaded = 0
+            if numTrackRatingsUploaded < 0:
+                numTrackRatingsUploaded = 0
+
+            # Display a summary of what was performed
+            summaryAlbums = "%d %s" % (numAlbumRatingsUploaded, ADDON.getLocalizedString(32030))
+            summaryTracks = "%d %s" % (numTrackRatingsUploaded, ADDON.getLocalizedString(32031))
+            xbmcgui.Dialog().ok(ADDON.getLocalizedString(32001), summaryAlbums, summaryTracks)
 
         # Only check for resync if it is enabled
         if Settings.isUpdateAlbumRatings() or Settings.isUpdateTrackRatings():

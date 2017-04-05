@@ -232,8 +232,6 @@ class TheAudioDb():
                 fullArtist = urllib.quote_plus(" ".join(trackDetails['artist']))
                 ratingsUrl = "%s&artist=%s" % (ratingsUrl, fullArtist)
 
-        # "&album={album}"
-
         if 'title' in trackDetails:
             if trackDetails['title'] not in [None, ""]:
                 ratingsUrl = "%s&track=%s" % (ratingsUrl, urllib.quote_plus(trackDetails['title']))
@@ -250,12 +248,67 @@ class TheAudioDb():
         success = False
         errorMsg = None
         if json_details not in [None, ""]:
-            json_response = json.loads(json_details)
+            json_response = {}
+            json_response['result'] = 'FAILED Invalid Response'
+            try:
+                json_response = json.loads(json_details)
+            except:
+                log("setRatingForTrack: Invalid response from set rating %s" % json_details)
+                if 'SUCCESS' in json_details:
+                    json_response['result'] = 'SUCCESS Unknown Response'
+
             if 'result' in json_response:
                 errorMsg = json_response['result']
                 if errorMsg not in [None, '']:
                     log("setRatingForTrack: Setting rating response was: %s" % errorMsg)
                     if errorMsg.startswith('SUCCESS'):
                         success = True
+                else:
+                    success = True
+
+        return success, errorMsg
+
+    def setRatingForAlbum(self, albumDetails):
+        log("setRatingForAlbum: Setting rating for albumid: %s" % str(albumDetails['albumid']))
+        ratingsUrl = "%ssubmit-album.php?user=%s" % (self.url_prefix, self.username)
+
+        if 'artist' in albumDetails:
+            if albumDetails['artist'] not in [None, ""]:
+                fullArtist = urllib.quote_plus(" ".join(albumDetails['artist']))
+                ratingsUrl = "%s&artist=%s" % (ratingsUrl, fullArtist)
+
+        if 'title' in albumDetails:
+            if albumDetails['title'] not in [None, ""]:
+                ratingsUrl = "%s&album=%s" % (ratingsUrl, urllib.quote_plus(albumDetails['title']))
+
+        if 'userrating' in albumDetails:
+            if albumDetails['userrating'] not in [None, ""]:
+                ratingsUrl = "%s&rating=%s" % (ratingsUrl, albumDetails['userrating'])
+
+        ratingsUrl = "%s&api=%s" % (ratingsUrl, Settings.getApiToken())
+
+        # Make the call to theaudiodb.com
+        json_details = self._makeCall(ratingsUrl)
+
+        success = False
+        errorMsg = None
+        if json_details not in [None, ""]:
+            json_response = {}
+            json_response['result'] = 'FAILED Invalid Response'
+            try:
+                json_response = json.loads(json_details)
+            except:
+                log("setRatingForTrack: Invalid response from set rating %s" % json_details)
+                if 'SUCCESS' in json_details:
+                    json_response['result'] = 'SUCCESS Unknown Response'
+
+            if 'result' in json_response:
+                errorMsg = json_response['result']
+                if errorMsg not in [None, '']:
+                    log("setRatingForTrack: Setting rating response was: %s" % errorMsg)
+                    if errorMsg.startswith('SUCCESS'):
+                        success = True
+                else:
+                    success = True
 
         return success, errorMsg
