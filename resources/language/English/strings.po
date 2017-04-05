@@ -115,3 +115,23 @@ msgstr ""
 msgctxt "#32023"
 msgid "Display Progress"
 msgstr ""
+
+msgctxt "#32024"
+msgid "TheAudioDB"
+msgstr ""
+
+msgctxt "#32025"
+msgid "API Token"
+msgstr ""
+
+msgctxt "#32026"
+msgid "Upload Album Ratings"
+msgstr ""
+
+msgctxt "#32027"
+msgid "Upload Track Ratings"
+msgstr ""
+
+msgctxt "#32028"
+msgid "Upload New Ratings On Startup"
+msgstr ""

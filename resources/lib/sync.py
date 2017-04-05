@@ -1,6 +1,15 @@
 # -*- coding: utf-8 -*-
+import sys
+import traceback
+import xbmc
 import xbmcgui
 import xbmcaddon
+import xbmcvfs
+
+if sys.version_info >= (2, 7):
+    import json
+else:
+    import simplejson as json
 
 # Import the common settings
 from settings import log
@@ -10,6 +19,7 @@ from library import MusicLibrary
 
 
 ADDON = xbmcaddon.Addon(id='script.theaudiodb.sync')
+ADDON_ID = ADDON.getAddonInfo('id')
 
 
 # A dummy implementation of the progress dialog, means the code
@@ -118,3 +128,103 @@ class LibrarySync():
         log("syncToLibrary: Albums Updated = %d, Tracks Updated = %d" % (numAlbumsUpdated, numTracksUpdated))
 
         return numAlbumsUpdated, numTracksUpdated
+
+    @staticmethod
+    def checkForChangedTrackRatings(username, showProgress=False):
+        if not Settings.isUploadTrackRatings():
+            return
+
+        trackRatingsPath = xbmc.translatePath('special://profile/addon_data/%s/trackRatings.json' % ADDON_ID).decode("utf-8")
+#        albumRatingsFile = xbmc.translatePath('special://profile/addon_data/%s/albumRatings.json' % ADDON_ID).decode("utf-8")
+
+        # Get the existing track from the library database
+        musicLib = MusicLibrary()
+        libraryTracks = musicLib.getLibraryTracks()
+
+        oldTrackRatings = []
+        # Load any existing stored data from disk
+        if xbmcvfs.exists(trackRatingsPath):
+            # Need to compare tracks to see if any ratings have changed
+            try:
+                # Load the JSON contents of the file
+                oldTrackRatingsFile = xbmcvfs.File(trackRatingsPath, 'r')
+                oldTrackRatingsStr = oldTrackRatingsFile.read()
+                oldTrackRatingsFile.close()
+
+                # Convert the JSON into objects
+                oldTrackRatings = json.loads(oldTrackRatingsStr)
+
+            except:
+                log("checkForChangedTrackRatings: Failed to load existing track ratings file: %s" % trackRatingsPath, xbmc.LOGERROR)
+                log("checkForChangedTrackRatings: %s" % traceback.format_exc(), xbmc.LOGERROR)
+
+        if (len(libraryTracks) > 0) and (oldTrackRatings > 0):
+            theAudioDb = TheAudioDb(username)
+
+            # Loop round all of the current tracks and see if the rating has changed
+            # since the last time it was checked
+            for currentTrack in libraryTracks:
+                # Check if this track has a rating
+                existingUserRating = 0
+                if 'userrating' in currentTrack:
+                    existingUserRating = int(currentTrack['userrating'])
+
+                # If there is no user rating, skip this one
+                if existingUserRating == 0:
+                    continue
+
+                # Check if this track was in the previously uploaded list
+                if ('artist' not in currentTrack) or ('title' not in currentTrack):
+                    continue
+                if (currentTrack['artist'] in [None, ""]) or (currentTrack['title'] in [None, ""]):
+                    continue
+
+                for oldTrack in oldTrackRatings:
+                    if ('artist' not in oldTrack) or ('title' not in oldTrack):
+                        continue
+
+                    if (oldTrack['artist'] != currentTrack['artist']) or (oldTrack['title'] != currentTrack['title']):
+                        continue
+
+                    # Ideally the songId should be the same, but if it's not that could be because the
+                    # music was rescanned
+                    if currentTrack['songid'] != oldTrack['songid']:
+                        log("checkForChangedTrackRatings: Old and new song ids are different old:%s new:%s" % (str(oldTrack['songid']), str(currentTrack['songid'])))
+
+                    # To get here the artist and track are the same, now check if the rating is
+                    # different, if so, it has changed since the last time we were run
+                    if 'userrating' not in oldTrack:
+                        continue
+                    if existingUserRating == oldTrack['userrating']:
+                        # No change so nothing to do for this track
+                        break
+
+                    # At this point the rating has changed, we need to check to ensure the rating
+                    # online is the same as the old one, otherwise we might overwrite something
+                    # that is newer on-line (on-line takes priority in the case of a clash)
+                    rating, totalRating = theAudioDb.getRatingForTrack(currentTrack)
+
+                    # If the on-line rating is the same as the existing rating, nothing to do
+                    if rating == existingUserRating:
+                        log("checkForChangedTrackRatings: Ratings already the same for song %s" % str(currentTrack['songid']))
+                        break
+                    if (rating == oldTrack['userrating']) or (rating in [None, ""]):
+                        log("checkForChangedTrackRatings: New local rating detected, on-line copy requires update")
+                        # Need to update the rating on-line
+                        theAudioDb.setRatingForTrack(currentTrack)
+                    else:
+                        log("checkForChangedTrackRatings: On-line rating has changed, update local with latest online")
+                        musicLib.updateLibraryTrackRatings(currentTrack, rating, totalRating)
+                    break
+            del theAudioDb
+
+        # Now save the updated track information
+        try:
+            trackRatingsFile = xbmcvfs.File(trackRatingsPath, 'w')
+            trackRatingsFile.write(json.dumps(libraryTracks, sort_keys=True, indent=4))
+            trackRatingsFile.close()
+        except:
+            log("checkForChangedTrackRatings: Failed to write file: %s" % trackRatingsPath, xbmc.LOGERROR)
+            log("checkForChangedTrackRatings: %s" % traceback.format_exc(), xbmc.LOGERROR)
+
+        del musicLib

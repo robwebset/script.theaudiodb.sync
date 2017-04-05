@@ -219,3 +219,39 @@ class TheAudioDb():
             log("makeCall: Failed to retrieve details from %s: %s" % (url, traceback.format_exc()))
 
         return resp_details
+
+    def setRatingForTrack(self, trackDetails):
+        log("setRatingForTrack: Setting rating for songId: %s" % str(trackDetails['songid']))
+        ratingsUrl = "%ssubmit-track.php?user=%s" % (self.url_prefix, self.username)
+
+        if 'artist' in trackDetails:
+            if trackDetails['artist'] not in [None, ""]:
+                fullArtist = " ".join(trackDetails['artist'])
+                ratingsUrl = "%s&artist=%s" % (ratingsUrl, fullArtist)
+
+        # "&album={album}"
+
+        if 'title' in trackDetails:
+            if trackDetails['title'] not in [None, ""]:
+                ratingsUrl = "%s&track=%s" % (ratingsUrl, trackDetails['title'])
+
+        if 'userrating' in trackDetails:
+            if trackDetails['userrating'] not in [None, ""]:
+                ratingsUrl = "%s&rating=%s" % (ratingsUrl, trackDetails['userrating'])
+
+        ratingsUrl = "%s&api=%s" % (ratingsUrl, Settings.getApiToken())
+
+        # Make the call to theaudiodb.com
+        json_details = self._makeCall(ratingsUrl)
+
+        success = False
+        errorMsg = None
+        if json_details not in [None, ""]:
+            json_response = json.loads(json_details)
+            if 'result' in json_response:
+                errorMsg = json_response['result']
+                log("setRatingForTrack: Setting rating response was: %s" % errorMsg)
+                if errorMsg.startswith('SUCCESS'):
+                    success = True
+
+        return success, errorMsg

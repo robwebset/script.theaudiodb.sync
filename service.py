@@ -23,15 +23,21 @@ if __name__ == '__main__':
     # If the username is not set, then nothing to do yet
     if username not in [None, ""]:
         performResync = False
-        nextResyncTime = Settings.getNextScheduledResyncTime()
 
-        if nextResyncTime not in [None, "", "0"]:
-            log("Service: Next Sync time is %d" % nextResyncTime)
-            currentTime = int(time.time())
-            log("Service: Current time is %d" % currentTime)
-            # check if the last resync was within 5 minuted
-            if currentTime > nextResyncTime:
-                performResync = True
+        if Settings.isUploadRatingsOnStartup():
+            LibrarySync.checkForChangedTrackRatings(username, False)
+
+        # Only check for resync if it is enabled
+        if Settings.isUpdateAlbumRatings() or Settings.isUpdateTrackRatings():
+            nextResyncTime = Settings.getNextScheduledResyncTime()
+
+            if nextResyncTime not in [None, "", "0"]:
+                log("Service: Next Sync time is %d" % nextResyncTime)
+                currentTime = int(time.time())
+                log("Service: Current time is %d" % currentTime)
+                # check if the last resync was within 5 minuted
+                if currentTime > nextResyncTime:
+                    performResync = True
 
         if performResync:
             # Check if the status should be displayed
