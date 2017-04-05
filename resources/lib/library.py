@@ -36,12 +36,18 @@ class MusicLibrary():
 
     # Get details about every track in the Kodi Music Library
     def getLibraryTracks(self):
-        json_query = xbmc.executeJSONRPC('{"jsonrpc": "2.0", "method": "AudioLibrary.GetSongs", "params": {"properties": ["musicbrainztrackid", "rating"%s]  }, "id": "libSongs"}' % self.additionalTrackValues)
+        json_query = xbmc.executeJSONRPC('{"jsonrpc": "2.0", "method": "AudioLibrary.GetSongs", "params": {"properties": ["albumartist", "musicbrainztrackid", "rating"%s]  }, "id": "libSongs"}' % self.additionalTrackValues)
         json_response = json.loads(json_query)
 
         libraryTracks = []
         if ("result" in json_response) and ('songs' in json_response['result']):
             libraryTracks = json_response['result']['songs']
+            # Check for the case where there is no artist, but there is an album artist
+            for track in libraryTracks:
+                if ('artist' not in track) or (len(track['artist']) < 1) or (len(''.join(track['artist'])) < 1):
+                    if ('albumartist' in track) and (len(track['albumartist']) > 0):
+                        track['artist'] = track['albumartist']
+                        del track['albumartist']
 
         log("MusicLibrary: Retrieved a total of %d tracks" % len(libraryTracks))
         return libraryTracks

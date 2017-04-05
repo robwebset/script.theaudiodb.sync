@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import sys
+import urllib
 import urllib2
 import base64
 import traceback
@@ -39,25 +40,26 @@ class TheAudioDb():
                 # The results of the search come back as an array of entries
                 if 'scores' in json_response:
                     self.cachedTrackRatings = []
-                    for tracks in json_response['scores']:
-                        details = {'mbidTrack': None, 'trackscore': None, 'artist': None, 'track': None, 'tracktotal': None}
-                        details['mbidTrack'] = tracks.get('mbidTrack', None)
-                        details['artist'] = tracks.get('strArtist', None)
-                        details['track'] = tracks.get('strTrack', None)
+                    if json_response['scores'] not in [None, '']:
+                        for tracks in json_response['scores']:
+                            details = {'mbidTrack': None, 'trackscore': None, 'artist': None, 'track': None, 'tracktotal': None}
+                            details['mbidTrack'] = tracks.get('mbidTrack', None)
+                            details['artist'] = tracks.get('strArtist', None)
+                            details['track'] = tracks.get('strTrack', None)
 
-                        ratingStr = tracks.get('trackscore', None)
-                        if ratingStr not in [None, ""]:
-                            details['trackscore'] = int(ratingStr)
+                            ratingStr = tracks.get('trackscore', None)
+                            if ratingStr not in [None, ""]:
+                                details['trackscore'] = int(ratingStr)
 
-                        totalStr = tracks.get('tracktotal', None)
-                        if totalStr not in [None, ""]:
-                            # Total score is a float - so add on 0.5 to ensure the rounding
-                            # to an integer is as expected
-                            details['tracktotal'] = int(float(totalStr) + 0.5)
+                            totalStr = tracks.get('tracktotal', None)
+                            if totalStr not in [None, ""]:
+                                # Total score is a float - so add on 0.5 to ensure the rounding
+                                # to an integer is as expected
+                                details['tracktotal'] = int(float(totalStr) + 0.5)
 
-                        if (totalStr not in [None, ""]) or (ratingStr not in [None, ""]):
-                            # Only add to the list if there is a rating
-                            self.cachedTrackRatings.append(details)
+                            if (totalStr not in [None, ""]) or (ratingStr not in [None, ""]):
+                                # Only add to the list if there is a rating
+                                self.cachedTrackRatings.append(details)
 
             # Check for the case where the site is unreachable
             if self.cachedTrackRatings is None:
@@ -82,25 +84,26 @@ class TheAudioDb():
                 # The results of the search come back as an array of entries
                 if 'scores' in json_response:
                     self.cachedAlbumRatings = []
-                    for tracks in json_response['scores']:
-                        details = {'mbidAlbum': None, 'albumscore': None, 'artist': None, 'album': None, 'albumtotal': None}
-                        details['mbidAlbum'] = tracks.get('mbidAlbum', None)
-                        details['artist'] = tracks.get('strArtist', None)
-                        details['album'] = tracks.get('strAlbum', None)
+                    if json_response['scores'] not in [None, '']:
+                        for tracks in json_response['scores']:
+                            details = {'mbidAlbum': None, 'albumscore': None, 'artist': None, 'album': None, 'albumtotal': None}
+                            details['mbidAlbum'] = tracks.get('mbidAlbum', None)
+                            details['artist'] = tracks.get('strArtist', None)
+                            details['album'] = tracks.get('strAlbum', None)
 
-                        ratingStr = tracks.get('albumscore', None)
-                        if ratingStr not in [None, ""]:
-                            details['albumscore'] = int(ratingStr)
+                            ratingStr = tracks.get('albumscore', None)
+                            if ratingStr not in [None, ""]:
+                                details['albumscore'] = int(ratingStr)
 
-                        totalStr = tracks.get('albumtotal', None)
-                        if totalStr not in [None, ""]:
-                            # Total score is a float - so add on 0.5 to ensure the rounding
-                            # to an integer is as expected
-                            details['albumtotal'] = int(float(totalStr) + 0.5)
+                            totalStr = tracks.get('albumtotal', None)
+                            if totalStr not in [None, ""]:
+                                # Total score is a float - so add on 0.5 to ensure the rounding
+                                # to an integer is as expected
+                                details['albumtotal'] = int(float(totalStr) + 0.5)
 
-                        if (totalStr not in [None, ""]) or (ratingStr not in [None, ""]):
-                            # Only add to the list if there is a rating
-                            self.cachedAlbumRatings.append(details)
+                            if (totalStr not in [None, ""]) or (ratingStr not in [None, ""]):
+                                # Only add to the list if there is a rating
+                                self.cachedAlbumRatings.append(details)
 
             # Check for the case where the site is unreachable
             if self.cachedAlbumRatings is None:
@@ -222,18 +225,18 @@ class TheAudioDb():
 
     def setRatingForTrack(self, trackDetails):
         log("setRatingForTrack: Setting rating for songId: %s" % str(trackDetails['songid']))
-        ratingsUrl = "%ssubmit-track.php?user=%s" % (self.url_prefix, self.username)
+        ratingsUrl = "%ssubmit-track2.php?user=%s" % (self.url_prefix, self.username)
 
         if 'artist' in trackDetails:
             if trackDetails['artist'] not in [None, ""]:
-                fullArtist = " ".join(trackDetails['artist'])
+                fullArtist = urllib.quote_plus(" ".join(trackDetails['artist']))
                 ratingsUrl = "%s&artist=%s" % (ratingsUrl, fullArtist)
 
         # "&album={album}"
 
         if 'title' in trackDetails:
             if trackDetails['title'] not in [None, ""]:
-                ratingsUrl = "%s&track=%s" % (ratingsUrl, trackDetails['title'])
+                ratingsUrl = "%s&track=%s" % (ratingsUrl, urllib.quote_plus(trackDetails['title']))
 
         if 'userrating' in trackDetails:
             if trackDetails['userrating'] not in [None, ""]:
@@ -250,8 +253,9 @@ class TheAudioDb():
             json_response = json.loads(json_details)
             if 'result' in json_response:
                 errorMsg = json_response['result']
-                log("setRatingForTrack: Setting rating response was: %s" % errorMsg)
-                if errorMsg.startswith('SUCCESS'):
-                    success = True
+                if errorMsg not in [None, '']:
+                    log("setRatingForTrack: Setting rating response was: %s" % errorMsg)
+                    if errorMsg.startswith('SUCCESS'):
+                        success = True
 
         return success, errorMsg

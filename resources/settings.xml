@@ -4,7 +4,7 @@
 		<setting id="lastSyncDisplay" enable="false" type="text" label="32015" default="-" />
 		<setting id="lastSyncTime" type="text" visible="false" option="hidden" label="Last Sync Time" default="" />
 		<setting id="username" type="text" label="32004" default=""/>
-		<setting id="useArtistDetails" type="bool" label="32006" default="false"/>
+		<setting id="useArtistDetails" type="bool" label="32006" default="true"/>
     	<setting label="32002" type="lsep"/>
 		<setting id="logEnabled" type="bool" label="32003" default="false"/>
 	</category>
