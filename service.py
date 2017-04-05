@@ -26,6 +26,7 @@ if __name__ == '__main__':
 
         if Settings.isUploadRatingsOnStartup():
             LibrarySync.checkForChangedTrackRatings(username, False)
+            LibrarySync.checkForChangedAlbumRatings(username, False)
 
         # Only check for resync if it is enabled
         if Settings.isUpdateAlbumRatings() or Settings.isUpdateTrackRatings():
