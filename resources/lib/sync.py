@@ -215,6 +215,8 @@ class LibrarySync():
                     else:
                         log("checkForChangedTrackRatings: On-line rating has changed, update local with latest online")
                         musicLib.updateLibraryTrackRatings(currentTrack, rating, totalRating)
+                        # Update the rating that we have set in the library
+                        currentTrack['userrating'] = rating
                     break
             del theAudioDb
 
