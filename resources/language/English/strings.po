@@ -151,3 +151,11 @@ msgstr ""
 msgctxt "#32032"
 msgid "Album Synchronisation"
 msgstr ""
+
+msgctxt "#32033"
+msgid "Clear Synchronisation History"
+msgstr ""
+
+msgctxt "#32034"
+msgid "Synchronisation History Cleared"
+msgstr ""

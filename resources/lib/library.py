@@ -50,6 +50,9 @@ class MusicLibrary():
                 # We don't want the album artist left in the data
                 if ('albumartist' in track):
                     del track['albumartist']
+                # If we are running on a version earlier than v17, populate the rating
+                if (self.kodiMajorVersion < 17) and ('userrating' not in track) and ('rating' in track):
+                    track['userrating'] = int(track['rating'] * self.ratingDivisor)
 
         log("MusicLibrary: Retrieved a total of %d tracks" % len(libraryTracks))
         return libraryTracks
@@ -62,6 +65,11 @@ class MusicLibrary():
         libraryAlbums = []
         if ("result" in json_response) and ('albums' in json_response['result']):
             libraryAlbums = json_response['result']['albums']
+
+            for album in libraryAlbums:
+                # If we are running on a version earlier than v17, populate the rating
+                if (self.kodiMajorVersion < 17) and ('userrating' not in album) and ('rating' in album):
+                    album['userrating'] = int(album['rating'] * self.ratingDivisor)
 
         log("MusicLibrary: Retrieved a total of %d albums" % len(libraryAlbums))
         return libraryAlbums

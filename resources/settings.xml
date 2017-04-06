@@ -7,6 +7,7 @@
 		<setting id="useArtistDetails" type="bool" label="32006" default="true"/>
     	<setting label="32002" type="lsep"/>
 		<setting id="logEnabled" type="bool" label="32003" default="false"/>
+		<setting label="32033" type="action" action="RunScript($CWD/clearhistory.py)"/>
 	</category>
 	<category label="32012">
 		<setting id="updateAlbumRatings" type="bool" label="32013" default="true"/>
