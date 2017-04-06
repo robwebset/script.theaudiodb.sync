@@ -1,7 +1,4 @@
-- Does not clear rating if Kodi rating set back to 0
-- Context menu to sync rating
-
-v1.0.3
+v1.0.3 (2017-04-06)
 - Support Ratings upload
 
 v1.0.2 (2017-01-23)

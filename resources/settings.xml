@@ -14,6 +14,7 @@
 		<setting id="updateTrackRatings" type="bool" label="32014" default="true"/>
 	</category>
 	<category label="32024">
+		<setting type="lsep" label="32035"/>
 		<setting id="apiToken" type="text" label="32025" default=""/>
 		<setting id="uploadAlbumRatings" type="bool" label="32026" visible="!eq(-1,)" default="true"/>
 		<setting id="uploadTrackRatings" type="bool" label="32027" visible="!eq(-2,)" default="true"/>
