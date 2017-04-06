@@ -77,6 +77,12 @@ class Settings():
         return ADDON.getSetting("uploadRatingsOnStartup") == "true"
 
     @staticmethod
+    def doNotUploadZeroRatings():
+        if Settings.getApiToken() in [None, ""]:
+            return True
+        return ADDON.getSetting("doNotUploadZeroRatings") == "true"
+
+    @staticmethod
     def getLastSyncTime():
         return ADDON.getSetting("lastSyncTime")
 

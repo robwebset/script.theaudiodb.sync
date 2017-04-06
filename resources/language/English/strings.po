@@ -163,3 +163,7 @@ msgstr ""
 msgctxt "#32035"
 msgid "The API Token is available from your user profile page on TheAudioDB.com site."
 msgstr ""
+
+msgctxt "#32036"
+msgid "Do Not Upload Zero Ratings"
+msgstr ""
