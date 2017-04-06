@@ -192,10 +192,6 @@ class LibrarySync():
                     if 'userrating' in currentTrack:
                         existingUserRating = int(currentTrack['userrating'])
 
-                    # If there is no user rating, skip this one
-                    if existingUserRating == 0:
-                        continue
-
                     # Check if this track was in the previously uploaded list
                     if ('artist' not in currentTrack) or ('title' not in currentTrack):
                         continue
@@ -205,12 +201,15 @@ class LibrarySync():
                     # Check if there is a previous track that has been synced
                     ratingsUpdateRequired = False
                     if len(oldTrackRatings) > 0:
+                        oldTrackExists = False
                         for oldTrack in oldTrackRatings:
                             if ('artist' not in oldTrack) or ('title' not in oldTrack):
                                 continue
 
                             if (oldTrack['artist'] != currentTrack['artist']) or (oldTrack['title'] != currentTrack['title']):
                                 continue
+
+                            oldTrackExists = True
 
                             # Ideally the songId should be the same, but if it's not that could be because the
                             # music was rescanned
@@ -244,9 +243,20 @@ class LibrarySync():
                                 # Update the rating that we have set in the library
                                 currentTrack['userrating'] = rating
                             break
+
+                        # We might get here because there was no old track
+                        if not oldTrackExists:
+                            if existingUserRating != 0:
+                                # Make sure there is no rating already
+                                rating, totalRating = theAudioDb.getRatingForTrack(currentTrack)
+                                if rating == 0:
+                                    ratingsUpdateRequired = True
+
                     else:
-                        # If there was no old rating and we have a rating value, then need to update
-                        ratingsUpdateRequired = True
+                        # If there is no user rating, skip this one, as there was previously no old version
+                        if existingUserRating != 0:
+                            # If there was no old rating and we have a rating value, then need to update
+                            ratingsUpdateRequired = True
 
                     if ratingsUpdateRequired:
                         log("checkForChangedTrackRatings: New local rating requires update")
@@ -343,10 +353,6 @@ class LibrarySync():
                     if 'userrating' in currentAlbum:
                         existingUserRating = int(currentAlbum['userrating'])
 
-                    # If there is no user rating, skip this one
-                    if existingUserRating == 0:
-                        continue
-
                     # Check if this track was in the previously uploaded list
                     if ('artist' not in currentAlbum) or ('title' not in currentAlbum):
                         continue
@@ -356,12 +362,15 @@ class LibrarySync():
                     # Check if there is a previous track that has been synced
                     ratingsUpdateRequired = False
                     if len(oldAlbumRatings) > 0:
+                        oldAlbumExists = False
                         for oldAlbum in oldAlbumRatings:
                             if ('artist' not in oldAlbum) or ('title' not in oldAlbum):
                                 continue
 
                             if (oldAlbum['artist'] != currentAlbum['artist']) or (oldAlbum['title'] != currentAlbum['title']):
                                 continue
+
+                            oldAlbumExists = True
 
                             # Ideally the songId should be the same, but if it's not that could be because the
                             # music was rescanned
@@ -395,9 +404,20 @@ class LibrarySync():
                                 # Update the rating that we have set in the library
                                 currentAlbum['userrating'] = rating
                             break
+
+                        # We might get here because there was no old track
+                        if not oldAlbumExists:
+                            if existingUserRating != 0:
+                                # Make sure there is no rating already
+                                rating, totalRating = theAudioDb.getRatingForAlbum(currentAlbum)
+                                if rating == 0:
+                                    ratingsUpdateRequired = True
+
                     else:
-                        # If there was no old rating and we have a rating value, then need to update
-                        ratingsUpdateRequired = True
+                        # If there is no user rating, skip this one, as there was previously no old version
+                        if existingUserRating != 0:
+                            # If there was no old rating and we have a rating value, then need to update
+                            ratingsUpdateRequired = True
 
                     if ratingsUpdateRequired:
                         log("checkForChangedAlbumRatings: New local rating requires update")

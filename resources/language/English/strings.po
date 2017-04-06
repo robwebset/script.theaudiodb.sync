@@ -61,11 +61,11 @@ msgid "Albums In Library To Process"
 msgstr ""
 
 msgctxt "#32010"
-msgid "Album(s) Updated"
+msgid "Album(s) Ratings Downloaded"
 msgstr ""
 
 msgctxt "#32011"
-msgid "Track(s) Updated"
+msgid "Track(s) Ratings Downloaded"
 msgstr ""
 
 msgctxt "#32012"
@@ -73,11 +73,11 @@ msgid "Library"
 msgstr ""
 
 msgctxt "#32013"
-msgid "Update Album Ratings"
+msgid "Download Album Ratings"
 msgstr ""
 
 msgctxt "#32014"
-msgid "Update Track Ratings"
+msgid "Download Track Ratings"
 msgstr ""
 
 msgctxt "#32015"
@@ -158,4 +158,8 @@ msgstr ""
 
 msgctxt "#32034"
 msgid "Synchronisation History Cleared"
+msgstr ""
+
+msgctxt "#32035"
+msgid "The API Token is available from your user profile page on TheAudioDB.com site."
 msgstr ""
