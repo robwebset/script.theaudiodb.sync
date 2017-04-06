@@ -1,4 +1,7 @@
 - Does not clear rating if Kodi rating set back to 0
+- Restrict to v17 and above
+- Context menu to sync rating
+- Clean Sync History
 
 v1.0.3
 - Support Ratings upload
