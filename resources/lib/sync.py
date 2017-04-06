@@ -253,6 +253,10 @@ class LibrarySync():
                                 ratingsUpdateRequired = True
 
                     if ratingsUpdateRequired:
+                        if (existingUserRating == 0) and Settings.doNotUploadZeroRatings():
+                            log("checkForChangedTrackRatings: Not updating as rating is zero")
+                            continue
+
                         log("checkForChangedTrackRatings: New local rating requires update")
                         # Need to update the rating on-line
                         success, errMsg = theAudioDb.setRatingForTrack(currentTrack)
@@ -408,6 +412,10 @@ class LibrarySync():
                                 ratingsUpdateRequired = True
 
                     if ratingsUpdateRequired:
+                        if (existingUserRating == 0) and Settings.doNotUploadZeroRatings():
+                            log("checkForChangedAlbumRatings: Not updating as rating is zero")
+                            continue
+
                         log("checkForChangedAlbumRatings: New local rating requires update")
                         # Need to update the rating on-line
                         success, errMsg = theAudioDb.setRatingForAlbum(currentAlbum)
