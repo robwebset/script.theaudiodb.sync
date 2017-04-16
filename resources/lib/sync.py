@@ -390,7 +390,7 @@ class LibrarySync():
 
                             # If the on-line rating is the same as the existing rating, nothing to do
                             if rating == existingUserRating:
-                                log("checkForChangedAlbumRatings: Ratings already the same for album %s" % str(currentAlbum['songid']))
+                                log("checkForChangedAlbumRatings: Ratings already the same for album %s" % str(currentAlbum['albumid']))
                                 break
                             if (rating == oldAlbum['userrating']) or (rating in [None, ""]):
                                 log("checkForChangedAlbumRatings: New local rating detected, on-line copy requires update")
