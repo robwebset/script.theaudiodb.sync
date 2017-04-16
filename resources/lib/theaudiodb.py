@@ -142,7 +142,7 @@ class TheAudioDb():
                     artistName = libraryTrack['artist']
                     # Artist is actually an array of artists
                     if len(libraryTrack['artist']) > 0:
-                        artistName = " ".join(libraryTrack['artist'])
+                        artistName = ' '.join(libraryTrack['artist'])
 
                     for details in ratingDetails:
                         # Surround in a try catch, just in case some character encoding
@@ -188,7 +188,7 @@ class TheAudioDb():
                     artistName = libraryAlbum['artist']
                     # Artist is actually an array of artists
                     if len(libraryAlbum['artist']) > 0:
-                        artistName = " ".join(libraryAlbum['artist'])
+                        artistName = ' '.join(libraryAlbum['artist'])
 
                     for details in ratingDetails:
                         # Surround in a try catch, just in case some character encoding
@@ -229,12 +229,22 @@ class TheAudioDb():
 
         if 'artist' in trackDetails:
             if trackDetails['artist'] not in [None, ""]:
-                fullArtist = urllib.quote_plus(" ".join(trackDetails['artist']))
+                fullArtist = ' '.join(trackDetails['artist'])
+                try:
+                    fullArtist = urllib.quote_plus(fullArtist)
+                except:
+                    fullArtist = urllib.quote_plus(fullArtist.encode('utf-8'))
+
                 ratingsUrl = "%s&artist=%s" % (ratingsUrl, fullArtist)
 
         if 'title' in trackDetails:
             if trackDetails['title'] not in [None, ""]:
-                ratingsUrl = "%s&track=%s" % (ratingsUrl, urllib.quote_plus(trackDetails['title']))
+                title = trackDetails['title']
+                try:
+                    title = urllib.quote_plus(title)
+                except:
+                    title = urllib.quote_plus(title.encode('utf-8'))
+                ratingsUrl = "%s&track=%s" % (ratingsUrl, title)
 
         if 'userrating' in trackDetails:
             if trackDetails['userrating'] not in [None, ""]:
@@ -274,12 +284,21 @@ class TheAudioDb():
 
         if 'artist' in albumDetails:
             if albumDetails['artist'] not in [None, ""]:
-                fullArtist = urllib.quote_plus(" ".join(albumDetails['artist']))
+                fullArtist = ' '.join(albumDetails['artist'])
+                try:
+                    fullArtist = urllib.quote_plus(fullArtist)
+                except:
+                    fullArtist = urllib.quote_plus(fullArtist.encode('utf-8'))
                 ratingsUrl = "%s&artist=%s" % (ratingsUrl, fullArtist)
 
         if 'title' in albumDetails:
             if albumDetails['title'] not in [None, ""]:
-                ratingsUrl = "%s&album=%s" % (ratingsUrl, urllib.quote_plus(albumDetails['title']))
+                title = albumDetails['title']
+                try:
+                    title = urllib.quote_plus(title)
+                except:
+                    title = urllib.quote_plus(title.encode('utf-8'))
+                ratingsUrl = "%s&album=%s" % (ratingsUrl, title)
 
         if 'userrating' in albumDetails:
             if albumDetails['userrating'] not in [None, ""]:
