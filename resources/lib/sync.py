@@ -261,7 +261,16 @@ class LibrarySync():
                         # Need to update the rating on-line
                         success, errMsg = theAudioDb.setRatingForTrack(currentTrack)
                         if not success:
-                            xbmc.executebuiltin('Notification("%s","%s",500,%s)' % (oldTrack['title'], errMsg, ADDON.getAddonInfo('icon')))
+                            try:
+                                displayTrackTitle = oldTrack['title']
+                                try:
+                                    displayTrackTitle = oldTrack['title'].encode('utf-8')
+                                except:
+                                    pass
+                                xbmc.executebuiltin('Notification("%s","%s",500,%s)' % (displayTrackTitle, errMsg, ADDON.getAddonInfo('icon')))
+                            except:
+                                log('checkForChangedAlbumRatings: Failed to show notification with error: %s' % traceback.format_exc(), xbmc.LOGERROR)
+
                         else:
                             numTrackRatingsUploaded = numTrackRatingsUploaded + 1
 
@@ -420,7 +429,15 @@ class LibrarySync():
                         # Need to update the rating on-line
                         success, errMsg = theAudioDb.setRatingForAlbum(currentAlbum)
                         if not success:
-                            xbmc.executebuiltin('Notification("%s","%s",500,%s)' % (oldAlbum['title'], errMsg, ADDON.getAddonInfo('icon')))
+                            try:
+                                displayAlbumTitle = oldAlbum['title']
+                                try:
+                                    displayAlbumTitle = oldAlbum['title'].encode('utf-8')
+                                except:
+                                    pass
+                                xbmc.executebuiltin('Notification("%s","%s",500,%s)' % (displayAlbumTitle, errMsg, ADDON.getAddonInfo('icon')))
+                            except:
+                                log('checkForChangedAlbumRatings: Failed to show notification with error: %s' % traceback.format_exc(), xbmc.LOGERROR)
                         else:
                             numAlbumRatingsUploaded = numAlbumRatingsUploaded + 1
 
