@@ -6,6 +6,7 @@ import xbmcaddon
 from resources.lib.settings import log
 from resources.lib.settings import Settings
 from resources.lib.sync import LibrarySync
+from resources.lib.summary import Summary
 
 
 ADDON = xbmcaddon.Addon(id='script.theaudiodb.sync')
@@ -45,5 +46,11 @@ if __name__ == '__main__':
             displayProgress = Settings.isScheduleDisplayProgress()
             # Perform the resync operation and display the status
             numAlbumsUpdated, numTracksUpdated = LibrarySync.syncToLibrary(username, displayProgress)
+
+        # Check if the summary should be saved
+        if Settings.isSummaryLogEnabled():
+            summary = Summary()
+            summary.saveToDisk()
+            del summary
 
     log("TheAudioDBSync Service Finished")

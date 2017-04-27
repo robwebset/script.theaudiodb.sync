@@ -7,6 +7,7 @@ import xbmcaddon
 from resources.lib.settings import log
 from resources.lib.settings import Settings
 from resources.lib.sync import LibrarySync
+from resources.lib.summary import Summary
 
 
 ADDON = xbmcaddon.Addon(id='script.theaudiodb.sync')
@@ -25,6 +26,8 @@ if __name__ == '__main__':
         # Show a dialog detailing that the username is not set
         xbmcgui.Dialog().ok(ADDON.getLocalizedString(32001), ADDON.getLocalizedString(32005))
     else:
+        dialogSummary = ''
+
         # Make the call to upload any ratings that have changed
         numAlbumRatingsUploaded = -1
         if Settings.isUploadAlbumRatings():
@@ -41,9 +44,7 @@ if __name__ == '__main__':
                 numTrackRatingsUploaded = 0
 
             # Display a summary of what was performed
-            summaryAlbums = "%d %s" % (numAlbumRatingsUploaded, ADDON.getLocalizedString(32030))
-            summaryTracks = "%d %s" % (numTrackRatingsUploaded, ADDON.getLocalizedString(32031))
-            xbmcgui.Dialog().ok(ADDON.getLocalizedString(32001), summaryAlbums, summaryTracks)
+            dialogSummary = "%d %s\n%d %s\n" % (numAlbumRatingsUploaded, ADDON.getLocalizedString(32030), numTrackRatingsUploaded, ADDON.getLocalizedString(32031))
 
         # Only check for resync if it is enabled
         if Settings.isUpdateAlbumRatings() or Settings.isUpdateTrackRatings():
@@ -62,8 +63,15 @@ if __name__ == '__main__':
                 numAlbumsUpdated, numTracksUpdated = LibrarySync.syncToLibrary(username, True)
 
                 # Display a summary of what was performed
-                summaryAlbums = "%d %s" % (numAlbumsUpdated, ADDON.getLocalizedString(32010))
-                summaryTracks = "%d %s" % (numTracksUpdated, ADDON.getLocalizedString(32011))
-                xbmcgui.Dialog().ok(ADDON.getLocalizedString(32001), summaryAlbums, summaryTracks)
+                dialogSummary += "%d %s\n%d %s" % (numAlbumsUpdated, ADDON.getLocalizedString(32010), numTracksUpdated, ADDON.getLocalizedString(32011))
+
+        # Check if the summary should be saved
+        if Settings.isSummaryLogEnabled():
+            summary = Summary()
+            summary.saveToDisk()
+            del summary
+
+        if dialogSummary not in [None, ""]:
+            xbmcgui.Dialog().ok(ADDON.getLocalizedString(32001), dialogSummary)
 
     log("TheAudioDBSync Finished")
