@@ -16,6 +16,7 @@ from settings import log
 from settings import Settings
 from theaudiodb import TheAudioDb
 from library import MusicLibrary
+from summary import Summary
 
 
 ADDON = xbmcaddon.Addon(id='script.theaudiodb.sync')
@@ -39,7 +40,7 @@ class DummyProgress():
 class LibrarySync():
     @staticmethod
     def syncToLibrary(username, showProgress=False):
-        log("syncToLibrary: Performing sysnc for user = %s" % username)
+        log("syncToLibrary: Performing sync for user = %s" % username)
 
         # Store the time that the resync was last performed, we do this at the start
         # and the end as it may take a while and we want it set early so we can stop
@@ -88,6 +89,8 @@ class LibrarySync():
             # Calculate the percentage progress that each track will be
             perItemPercent = float(float(90) / (float(len(libraryTracks) + len(libraryAlbums))))
 
+            summary = Summary()
+
             if len(libraryTracks) > 0:
                 # For each rating, check to see if the track appears in the library
                 for libTrack in libraryTracks:
@@ -95,10 +98,28 @@ class LibrarySync():
                     rating, totalRating = theAudioDb.getRatingForTrack(libTrack)
                     # Perform the library update for this track
                     trackUpdated = musicLib.updateLibraryTrackRatings(libTrack, rating, totalRating)
+
+                    # Initialise the data for the summary of this operation
+                    summary.current['function'] = Summary.F_DOWNLOAD
+                    summary.current['area'] = Summary.A_TRACK
+                    try:
+                        summary.current['artist'] = ' '.join(libTrack['artist'])
+                    except:
+                        summary.current['artist'] = 'ERROR'
+                    summary.current['title'] = libTrack['title']
+                    summary.current['oldRating'] = totalRating
+                    summary.current['newRating'] = rating
+                    summary.current['result'] = 'Rating unchanged'
+
                     if trackUpdated:
                         numTracksUpdated = numTracksUpdated + 1
+                        summary.current['result'] = 'Rating updated'
+                    else:
+                        summary.current['result'] = 'Rating unchanged'
+
                     currentPercent = float(currentPercent + perItemPercent)
                     progressDialog.update(percent=int(currentPercent))
+                    summary.saveCurrent()
 
             if len(libraryAlbums) > 0:
                 # Set the progress bar to state that we are processing the albums
@@ -111,10 +132,28 @@ class LibrarySync():
                     rating, totalRating = theAudioDb.getRatingForAlbum(libAlbum)
                     # Perform the library update for this album
                     albumUpdated = musicLib.updateLibraryAlbumRatings(libAlbum, rating, totalRating)
+
+                    # Initialise the data for the summary of this operation
+                    summary.current['function'] = Summary.F_DOWNLOAD
+                    summary.current['area'] = Summary.A_ALBUM
+                    try:
+                        summary.current['artist'] = ' '.join(libAlbum['artist'])
+                    except:
+                        summary.current['artist'] = 'ERROR'
+                    summary.current['title'] = libAlbum['title']
+                    summary.current['oldRating'] = totalRating
+                    summary.current['newRating'] = rating
+                    summary.current['result'] = 'Rating unchanged'
+
                     if albumUpdated:
                         numAlbumsUpdated = numAlbumsUpdated + 1
+                        summary.current['result'] = 'Rating updated'
+                    else:
+                        summary.current['result'] = 'Rating unchanged'
+
                     currentPercent = float(currentPercent + perItemPercent)
                     progressDialog.update(percent=int(currentPercent))
+                    summary.saveCurrent()
 
         finally:
             progressDialog.close()
@@ -141,6 +180,8 @@ class LibrarySync():
         progressDialog = DummyProgress()
         if showProgress:
             progressDialog = xbmcgui.DialogProgressBG()
+
+        summary = Summary()
 
         try:
             progressDialog.create(ADDON.getLocalizedString(32001), ADDON.getLocalizedString(32029))
@@ -198,6 +239,16 @@ class LibrarySync():
                     if (currentTrack['artist'] in [None, ""]) or (currentTrack['title'] in [None, ""]):
                         continue
 
+                    # Initialise the data for the summary of this operation
+                    summary.current['function'] = Summary.F_UPLOAD
+                    summary.current['area'] = Summary.A_TRACK
+                    try:
+                        summary.current['artist'] = ' '.join(currentTrack['artist'])
+                    except:
+                        summary.current['artist'] = 'ERROR'
+                    summary.current['title'] = currentTrack['title']
+                    summary.current['newRating'] = existingUserRating
+
                     # Check if there is a previous track that has been synced
                     ratingsUpdateRequired = False
                     oldTrackExists = False
@@ -220,6 +271,8 @@ class LibrarySync():
                             # different, if so, it has changed since the last time we were run
                             if 'userrating' not in oldTrack:
                                 continue
+
+                            summary.current['oldRating'] = oldTrack['userrating']
                             if existingUserRating == oldTrack['userrating']:
                                 # No change so nothing to do for this track
                                 break
@@ -232,6 +285,7 @@ class LibrarySync():
                             # If the on-line rating is the same as the existing rating, nothing to do
                             if rating == existingUserRating:
                                 log("checkForChangedTrackRatings: Ratings already the same for song %s" % str(currentTrack['songid']))
+                                summary.current['result'] = 'Rating unchanged'
                                 break
                             if (rating == oldTrack['userrating']) or (rating in [None, ""]):
                                 log("checkForChangedTrackRatings: New local rating detected, on-line copy requires update")
@@ -242,6 +296,10 @@ class LibrarySync():
                                 musicLib.updateLibraryTrackRatings(currentTrack, rating, totalRating)
                                 # Update the rating that we have set in the library
                                 currentTrack['userrating'] = rating
+                                # For this case we need to change the summary as we have actually performed an update of the library
+                                summary.current['newRating'] = rating
+                                summary.current['function'] = Summary.F_DOWNLOAD
+                                summary.current['result'] = 'Simultaneous Update - using TADB rating'
                             break
 
                     # We might get here because there was no old track
@@ -255,11 +313,14 @@ class LibrarySync():
                     if ratingsUpdateRequired:
                         if (existingUserRating == 0) and Settings.doNotUploadZeroRatings():
                             log("checkForChangedTrackRatings: Not updating as rating is zero")
+                            summary.current['result'] = 'Skipping zero rated track'
+                            summary.saveCurrent()
                             continue
 
                         log("checkForChangedTrackRatings: New local rating requires update")
                         # Need to update the rating on-line
                         success, errMsg = theAudioDb.setRatingForTrack(currentTrack)
+                        summary.current['result'] = errMsg
                         if not success:
                             try:
                                 displayTrackTitle = oldTrack['title']
@@ -273,6 +334,9 @@ class LibrarySync():
 
                         else:
                             numTrackRatingsUploaded = numTrackRatingsUploaded + 1
+
+                    # Save this tracks summary
+                    summary.saveCurrent()
 
                 del theAudioDb
 
@@ -309,6 +373,8 @@ class LibrarySync():
         progressDialog = DummyProgress()
         if showProgress:
             progressDialog = xbmcgui.DialogProgressBG()
+
+        summary = Summary()
 
         try:
             progressDialog.create(ADDON.getLocalizedString(32001), ADDON.getLocalizedString(32032))
@@ -366,6 +432,16 @@ class LibrarySync():
                     if (currentAlbum['artist'] in [None, ""]) or (currentAlbum['title'] in [None, ""]):
                         continue
 
+                    # Initialise the data for the summary of this operation
+                    summary.current['function'] = Summary.F_UPLOAD
+                    summary.current['area'] = Summary.A_ALBUM
+                    try:
+                        summary.current['artist'] = ' '.join(currentAlbum['artist'])
+                    except:
+                        summary.current['artist'] = 'ERROR'
+                    summary.current['title'] = currentAlbum['title']
+                    summary.current['newRating'] = existingUserRating
+
                     # Check if there is a previous track that has been synced
                     ratingsUpdateRequired = False
                     oldAlbumExists = False
@@ -388,6 +464,8 @@ class LibrarySync():
                             # different, if so, it has changed since the last time we were run
                             if 'userrating' not in oldAlbum:
                                 continue
+
+                            summary.current['oldRating'] = oldAlbum['userrating']
                             if existingUserRating == oldAlbum['userrating']:
                                 # No change so nothing to do for this album
                                 break
@@ -400,6 +478,7 @@ class LibrarySync():
                             # If the on-line rating is the same as the existing rating, nothing to do
                             if rating == existingUserRating:
                                 log("checkForChangedAlbumRatings: Ratings already the same for album %s" % str(currentAlbum['albumid']))
+                                summary.current['result'] = 'Rating unchanged'
                                 break
                             if (rating == oldAlbum['userrating']) or (rating in [None, ""]):
                                 log("checkForChangedAlbumRatings: New local rating detected, on-line copy requires update")
@@ -410,6 +489,10 @@ class LibrarySync():
                                 musicLib.updateLibraryAlbumRatings(currentAlbum, rating, totalRating)
                                 # Update the rating that we have set in the library
                                 currentAlbum['userrating'] = rating
+                                # For this case we need to change the summary as we have actually performed an update of the library
+                                summary.current['newRating'] = rating
+                                summary.current['function'] = Summary.F_DOWNLOAD
+                                summary.current['result'] = 'Simultaneous Update - using TADB rating'
                             break
 
                     # We might get here because there was no old album
@@ -423,11 +506,14 @@ class LibrarySync():
                     if ratingsUpdateRequired:
                         if (existingUserRating == 0) and Settings.doNotUploadZeroRatings():
                             log("checkForChangedAlbumRatings: Not updating as rating is zero")
+                            summary.current['result'] = 'Skipping zero rated album'
+                            summary.saveCurrent()
                             continue
 
                         log("checkForChangedAlbumRatings: New local rating requires update")
                         # Need to update the rating on-line
                         success, errMsg = theAudioDb.setRatingForAlbum(currentAlbum)
+                        summary.current['result'] = errMsg
                         if not success:
                             try:
                                 displayAlbumTitle = oldAlbum['title']
@@ -440,6 +526,9 @@ class LibrarySync():
                                 log('checkForChangedAlbumRatings: Failed to show notification with error: %s' % traceback.format_exc(), xbmc.LOGERROR)
                         else:
                             numAlbumRatingsUploaded = numAlbumRatingsUploaded + 1
+
+                    # Save this tracks summary
+                    summary.saveCurrent()
 
                 del theAudioDb
 

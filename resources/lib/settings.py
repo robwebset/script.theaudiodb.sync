@@ -39,6 +39,10 @@ class Settings():
         return majorVersion, minorVersion
 
     @staticmethod
+    def isSummaryLogEnabled():
+        return ADDON.getSetting("summaryLogEnabled") == "true"
+
+    @staticmethod
     def getUsername():
         return ADDON.getSetting("username")
 

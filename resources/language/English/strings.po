@@ -167,3 +167,7 @@ msgstr ""
 msgctxt "#32036"
 msgid "Do Not Upload Zero Ratings"
 msgstr ""
+
+msgctxt "#32037"
+msgid "Save Summary Log"
+msgstr ""
