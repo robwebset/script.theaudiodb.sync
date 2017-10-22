@@ -1,3 +1,6 @@
+v1.0.6 (2017-10-22)
+- Fix script error on saving summary log
+
 v1.0.5 (2017-04-27)
 - Add option to log a summary of the updates performed
 

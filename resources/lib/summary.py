@@ -46,13 +46,34 @@ class Summary():
         allData = 'OPERATION|AREA|ARTIST|TITLE|OLD or TOTAL RATING|NEW RATING|RESULT\n'
         for item in Summary._items:
             allItems = []
-            allItems.append(item['function'])
-            allItems.append(item['area'])
-            allItems.append(item['artist'])
-            allItems.append(item['title'])
-            allItems.append(str(item['oldRating']))
-            allItems.append(str(item['newRating']))
-            allItems.append(item['result'])
+            if item['function'] is None:
+                allItems.append('')
+            else:
+                allItems.append(item['function'])
+            if item['area'] is None:
+                allItems.append('')
+            else:
+                allItems.append(item['area'])
+            if item['artist'] is None:
+                allItems.append('')
+            else:
+                allItems.append(item['artist'])
+            if item['title'] is None:
+                allItems.append('')
+            else:
+                allItems.append(item['title'])
+            if item['oldRating'] is None:
+                allItems.append('')
+            else:
+                allItems.append(str(item['oldRating']))
+            if item['newRating'] is None:
+                allItems.append('')
+            else:
+                allItems.append(str(item['newRating']))
+            if item['result'] is None:
+                allItems.append('')
+            else:
+                allItems.append(item['result'])
             allData += '|'.join(allItems)
             allData += '\n'
 
