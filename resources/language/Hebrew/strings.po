@@ -1,0 +1,181 @@
+# Kodi Media Center language file
+# Addon Name: TheAudioDBSync
+# Addon id: script.theaudiodb.sync
+# Addon Provider: robwebset
+msgid ""
+msgstr ""
+"Project-Id-Version: script.theaudiodb.sync\n"
+"Report-Msgid-Bugs-To: alanwww1@xbmc.org\n"
+"POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"PO-Revision-Date: 2017-10-29 10:37+0200\n"
+"Last-Translator: A. Dambledore\n"
+"Language-Team: Eng2Heb\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: he_IL\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+msgctxt "Addon Summary"
+msgid "Script to synchronise data from theaudiodb.com"
+msgstr "הסקריפט נועד לסנכרון נתונים מ- theaudiodb.com"
+
+msgctxt "Addon Description"
+msgid "Supplies various options to synchronise artist data between theaudiodb.com and your Kodi library"
+msgstr "מספק אפשרויות שונות כדי לסנכרן נתוני אמן בין theaudiodb.com לבין הספריה בקודי"
+
+msgctxt "#32001"
+msgid "TheAudioDBSync"
+msgstr "TheAudioDBSync"
+
+msgctxt "#32002"
+msgid "Debugging"
+msgstr "ניפוי שגיאות"
+
+msgctxt "#32003"
+msgid "Enable debug logging"
+msgstr "הפעל יומן רישום מורחב"
+
+msgctxt "#32004"
+msgid "Username"
+msgstr "שם משתמש"
+
+msgctxt "#32005"
+msgid "Username Not Set"
+msgstr "שם משתמש אינו מוגדר"
+
+msgctxt "#32006"
+msgid "Use Artist Details If No Music Brainz Id"
+msgstr "תשתמש בפרטי האמן אם אין מזהה מוזיקה Brainz"
+
+msgctxt "#32007"
+msgid "Starting Synchronisation"
+msgstr "הסנכרון התחיל"
+
+msgctxt "#32008"
+msgid "Tracks In Library To Process"
+msgstr "רצועות בספרייה נכנסו לתהליך"
+
+msgctxt "#32009"
+msgid "Albums In Library To Process"
+msgstr "אלבומים בספרייה נכנסו לתהליך"
+
+msgctxt "#32010"
+msgid "Album(s) Ratings Downloaded"
+msgstr "דירוגי האלבומים ירדו"
+
+msgctxt "#32011"
+msgid "Track(s) Ratings Downloaded"
+msgstr "דירוגי הרצועות ירדו"
+
+msgctxt "#32012"
+msgid "Library"
+msgstr "ספרייה"
+
+msgctxt "#32013"
+msgid "Download Album Ratings"
+msgstr "הורד דירוגי האלבום"
+
+msgctxt "#32014"
+msgid "Download Track Ratings"
+msgstr "הורד דירוגי הרצועה"
+
+msgctxt "#32015"
+msgid "Last Synchronisation:"
+msgstr "סנכרון אחרון:"
+
+msgctxt "#32016"
+msgid "Last Synchronisation was less than 5 minutes ago. Do you really wish to perform synchronisation again?"
+msgstr "הסנכרון האחרון היה לפני פחות מ-5 דקות. האם אתה בטוח שברצונך לבצע סנכרון שוב?"
+
+msgctxt "#32017"
+msgid "Schedule"
+msgstr "תזמון"
+
+msgctxt "#32018"
+msgid "Automatically Synchronise Every"
+msgstr "סנכרן אוטומטית בכל"
+
+msgctxt "#32019"
+msgid "Never"
+msgstr "אף פעם"
+
+msgctxt "#32020"
+msgid "Weekly"
+msgstr "שבועי"
+
+msgctxt "#32021"
+msgid "Fortnightly"
+msgstr "דו-שבועי"
+
+msgctxt "#32022"
+msgid "Monthly"
+msgstr "חודשי"
+
+msgctxt "#32023"
+msgid "Display Progress"
+msgstr "הצג התקדמות"
+
+msgctxt "#32024"
+msgid "TheAudioDB"
+msgstr "TheAudioDB"
+
+msgctxt "#32025"
+msgid "API Token"
+msgstr "מפתח API"
+
+msgctxt "#32026"
+msgid "Upload Album Ratings"
+msgstr "העלאת דירוג אלבום"
+
+msgctxt "#32027"
+msgid "Upload Track Ratings"
+msgstr "העלאת דירוג טראקט"
+
+msgctxt "#32028"
+msgid "Upload New Ratings On Startup"
+msgstr "העלאת דירוגים חדשים בעת ההפעלה"
+
+msgctxt "#32029"
+msgid "Track Synchronisation"
+msgstr "סנכרון רצועה"
+
+msgctxt "#32030"
+msgid "Album(s) Ratings Uploaded"
+msgstr "דירוג אלבום הועלה"
+
+msgctxt "#32031"
+msgid "Track(s) Ratings Uploaded"
+msgstr "דירוג טראקט הועלה"
+
+msgctxt "#32032"
+msgid "Album Synchronisation"
+msgstr "סנכרון אלבום"
+
+msgctxt "#32033"
+msgid "Clear Synchronisation History"
+msgstr "נקה היסטוריית סנכרון"
+
+msgctxt "#32034"
+msgid "Synchronisation History Cleared"
+msgstr "היסטוריית סנכרון נוקתה"
+
+msgctxt "#32035"
+msgid "The API Token is available from your user profile page on TheAudioDB.com site."
+msgstr "מפתח API זמין בדף פרופיל המשתמש שלך באתר TheAudioDB.com."
+
+msgctxt "#32036"
+msgid "Do Not Upload Zero Ratings"
+msgstr "אל תעלה דירוגי אפס"
+
+msgctxt "#32037"
+msgid "Save Summary Log"
+msgstr "שמור יומן הסיכום"
+
+msgctxt "#32038"
+msgid "Download Ratings From Specialist User"
+msgstr "הורד דירוגי משתמש מומחה"
+
+msgctxt "#32039"
+msgid "Specialist User"
+msgstr "משתמש מומחה"
