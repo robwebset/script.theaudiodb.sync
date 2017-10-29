@@ -8,7 +8,9 @@
 	<extension point="xbmc.service" library="service.py" start="login"/>
 	<extension point="xbmc.addon.metadata">
 		<summary lang="en">Script to synchronise data from theaudiodb.com</summary>
+		<summary lang="he">הסקריפט נועד לסנכרון נתונים מ- theaudiodb.com</summary>
 		<description lang="en">Supplies various options to synchronise artist data between theaudiodb.com and your Kodi library</description>
+		<description lang="he">מספק אפשרויות שונות כדי לסנכרן נתוני אמן בין theaudiodb.com לבין הספריה בקודי</description>
 		<language></language>
 		<platform>all</platform>
 		<license>See LICENSE.txt</license>
