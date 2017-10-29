@@ -171,3 +171,11 @@ msgstr ""
 msgctxt "#32037"
 msgid "Save Summary Log"
 msgstr ""
+
+msgctxt "#32038"
+msgid "Download Ratings From Specialist User"
+msgstr ""
+
+msgctxt "#32039"
+msgid "Specialist User"
+msgstr ""

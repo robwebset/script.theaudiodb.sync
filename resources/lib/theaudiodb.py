@@ -29,7 +29,7 @@ class TheAudioDb():
         # memory for future use to save returning to the server each time
         if self.cachedTrackRatings is None:
             # Create the URL to use to get the track ratings
-            ratingsUrl = "%sratings-track.php?user=%s" % (self.url_prefix, self.username)
+            ratingsUrl = "%sratings-track.php?user=%s" % (self.url_prefix, self._getDownloadInfoUsername())
 
             # Make the call to theaudiodb.com
             json_details = self._makeCall(ratingsUrl)
@@ -73,7 +73,7 @@ class TheAudioDb():
         # memory for future use to save returning to the server each time
         if self.cachedAlbumRatings is None:
             # Create the URL to use to get the track ratings
-            ratingsUrl = "%sratings-album.php?user=%s" % (self.url_prefix, self.username)
+            ratingsUrl = "%sratings-album.php?user=%s" % (self.url_prefix, self._getDownloadInfoUsername())
 
             # Make the call to theaudiodb.com
             json_details = self._makeCall(ratingsUrl)
@@ -225,7 +225,7 @@ class TheAudioDb():
 
     def setRatingForTrack(self, trackDetails):
         log("setRatingForTrack: Setting rating for songId: %s" % str(trackDetails['songid']))
-        ratingsUrl = "%ssubmit-track2.php?user=%s" % (self.url_prefix, self.username)
+        ratingsUrl = "%ssubmit-track.php?user=%s" % (self.url_prefix, self.username)
 
         if 'artist' in trackDetails:
             if trackDetails['artist'] not in [None, ""]:
@@ -331,3 +331,11 @@ class TheAudioDb():
                     success = True
 
         return success, errorMsg
+
+    # Support overriding the source that the ratings are retrieved from
+    def _getDownloadInfoUsername(self):
+        downloadUser = Settings.getSpecialistDownloadUser()
+        if downloadUser in [None, '']:
+            downloadUser = self.username
+        log("getDownloadInfoUsername: Using username %s for ratings download" % downloadUser)
+        return downloadUser

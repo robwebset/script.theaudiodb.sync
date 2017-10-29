@@ -1,3 +1,6 @@
+v1.0.7 (2017-10-29)
+- Allow download of ratings from pre-configured users
+
 v1.0.6 (2017-10-22)
 - Fix script error on saving summary log
 

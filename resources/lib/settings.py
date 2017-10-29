@@ -125,3 +125,10 @@ class Settings():
     @staticmethod
     def isScheduleDisplayProgress():
         return ADDON.getSetting("scheduleDisplayProgress") == "true"
+
+    @staticmethod
+    def getSpecialistDownloadUser():
+        downloadUser = None
+        if ADDON.getSetting("updateFromSpecialistUser") == "true":
+            downloadUser = ADDON.getSetting("specialistUser")
+        return downloadUser
