@@ -44,7 +44,11 @@ class Settings():
 
     @staticmethod
     def getUsername():
-        return ADDON.getSetting("username")
+        username = ADDON.getSetting("username")
+        # Check if a default download user is set
+        if username in [None, '']:
+            username = Settings.getSpecialistDownloadUser()
+        return username
 
     @staticmethod
     def getApiToken():

@@ -1,3 +1,6 @@
+v1.0.9 (2017-12-31)
+- Do not require username to be set when using pre-configured users
+
 v1.0.8 (2017-10-29)
 - Allow download of ratings from pre-configured users
 - Add Hebrew Language
