@@ -14,7 +14,7 @@
 		<setting id="updateAlbumRatings" type="bool" label="32013" default="true"/>
 		<setting id="updateTrackRatings" type="bool" label="32014" default="true"/>
 		<setting id="updateFromSpecialistUser" type="bool" label="32038" default="false"/>
-		<setting id="specialistUser" type="labelenum" label="32039" visible="eq(-1,true)" subsetting="true" values="rateyourmusic|MetaCriticScore|MetaCriticUserScore"/>
+		<setting id="specialistUser" type="labelenum" label="32039" visible="eq(-1,true)" subsetting="true" values="rateyourmusic|MetaCriticScore|MetaCriticUserScore" default="rateyourmusic"/>
 	</category>
 	<category label="32024">
 		<setting type="lsep" label="32035"/>
