@@ -1,3 +1,6 @@
+v1.2.0 (2018-06-01)
+- Tidy Up
+
 v1.1.0 (2017-12-31)
 - Set default user when using pre-configured users
 
